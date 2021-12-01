@@ -3,14 +3,14 @@
 # -----------------------------------------------------------------
 
 
-lammps file location  : /home/mshinjan/Work/MoireElectronicBands/Examples
-lammps_file_name      : lammps.dat_final_symmetrized_1.61_drip_ppp   # Name of the lammps file
-natom                 : 5044
+lammps file location  : /home/shinjan/Work/MoireElectronicBands/Examples
+lammps_file_name      : lammps.dat_test_drip   # Name of the lammps file
+natom                 : 28
 atom types            : 1
 atom style            : molecular
 
 
-k file location       : /home/mshinjan/Work/MoireElectronicBands/Examples
+k file location       : /home/shinjan/Work/MoireElectronicBands/Examples
 k file name           : k_file.dat
 nkpt                  : 51
 

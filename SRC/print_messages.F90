@@ -51,7 +51,7 @@ subroutine date_time_message_local(input_str)
     character(len=*), intent(in) :: input_str
     character(len=2000) :: local_output
 
-    call mpi_barrier(mpi_local%comm, mpi_barrier)
+    call mpi_barrier(mpi_local%comm, mpierr)
 
     call date_and_time(VALUES=date_time)
 
@@ -65,7 +65,7 @@ subroutine date_time_message_local(input_str)
         write(*,*) trim(local_output)
     end if
 
-    call mpi_barrier(mpi_local%comm, mpi_barrier)
+    call mpi_barrier(mpi_local%comm, mpierr)
 
     return 
 end subroutine
