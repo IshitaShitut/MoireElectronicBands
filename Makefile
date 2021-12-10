@@ -20,10 +20,10 @@ SCALAPACK_LIBS = -L${AMDSCALAPACK_ROOT}/lib -lscalapack
 
 FLFLAGS = ${BLAS_LIBS} ${LAPACK_LIBS} ${SCALAPACK_LIBS}
 
-FCFLAGS = -Ofast -I$(SRC_DIR) -ffree-form
+FCFLAGS = -O3 -I$(SRC_DIR) -ffree-form 
 
 CPP = cpp -P 
-CPPFLAGS = -D__DEBUG #-D__KPOOL -D__DEBUG
+CPPFLAGS = -D__DEBUG #-D__KPOOL
 
 
 all: $(MODOBJS) $(OBJS)

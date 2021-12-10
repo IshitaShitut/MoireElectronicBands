@@ -303,13 +303,13 @@ subroutine sanitize_input()
     select case (pzheevx_vars%range_)
         case("V")
             pzheevx_vars%il = 1
-            pzheevx_vars%iu = 1
+            pzheevx_vars%iu = moire%natom
         case("I")
             pzheevx_vars%vl = 0.0
             pzheevx_vars%vu = 0.0
         case("A")
             pzheevx_vars%il = 1
-            pzheevx_vars%iu = 1
+            pzheevx_vars%iu = moire%natom
             pzheevx_vars%vl = 0.0
             pzheevx_vars%vu = 0.0
     end select

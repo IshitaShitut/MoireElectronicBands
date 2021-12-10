@@ -37,31 +37,28 @@ subroutine diagonalize_hamiltonian()
     hamiltonian%mat, ia, ja, hamiltonian%desca, pzheevx_vars%vl,pzheevx_vars%vu, &
     pzheevx_vars%il, pzheevx_vars%iu, abstol, pzheevx_vars%comp_num_eval, &
     pzheevx_vars%comp_num_evec, eval, orfac, evec%mat, 1, 1, evec%desca, work, &
-    lwork, rwork, lrwork, iwork, liwork, ifail, lifail, iclustr, gap, info)
+    lwork, rwork, lrwork, iwork, liwork, ifail, iclustr, gap, info)
 
 
-    lwork = int(work(1)+1)
+    lwork  = int(work(1)+1)
     lrwork = int(rwork(1)+1)
     liwork = int(iwork(1)+1)
+    
 
     deallocate(work)
-    deallocate(iwork)
     deallocate(rwork)
+    deallocate(iwork)
 
     allocate(work(lwork))
-    allocate(iwork(liwork))
     allocate(rwork(lrwork))
-
-    debug_str = "Optimum arrays allocated"
-    call  debug_output(0)
+    allocate(iwork(liwork))
 
 
     call pzheevx(pzheevx_vars%comp_evec, pzheevx_vars%range_, 'L', moire%natom,  &
     hamiltonian%mat, ia, ja, hamiltonian%desca, pzheevx_vars%vl,pzheevx_vars%vu, &
     pzheevx_vars%il, pzheevx_vars%iu, abstol, pzheevx_vars%comp_num_eval, &
     pzheevx_vars%comp_num_evec, eval, orfac, evec%mat, 1, 1, evec%desca, work, &
-    lwork, rwork, lrwork, iwork, liwork, ifail, lifail, iclustr, gap, info)
-
+    lwork, rwork, lrwork, iwork, liwork, ifail, iclustr, gap, info)
 
     if (info.ne.0) then    
         write(err_msg,'(A,I0)') "PZHEEVX completed with info = ", info
@@ -83,6 +80,11 @@ subroutine diagonalize_hamiltonian()
             write(*,*) "One or more eigenvalues were not computed"
         end if
     end if
+
+    if (mpi_global%rank==0) then
+        write(*,*) eval(1:pzheevx_vars%comp_num_eval)
+    end if
+
 
     deallocate(work)
     deallocate(iwork)

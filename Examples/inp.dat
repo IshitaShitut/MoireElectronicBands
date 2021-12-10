@@ -3,29 +3,30 @@
 # -----------------------------------------------------------------
 
 
-lammps file location  : /home/shinjan/Work/MoireElectronicBands/Examples
-lammps_file_name      : lammps.dat_test_drip   # Name of the lammps file
-natom                 : 28
+lammps file location  : ./Examples
+lammps file name      : lammps.dat_final_symmetrized_1.12_drip_ppp    
+#lammps file name      : lammps.dat_test_drip   
+natom                 : 10444 
 atom types            : 1
 atom style            : molecular
 
 
-k file location       : /home/shinjan/Work/MoireElectronicBands/Examples
-k file name           : k_file.dat
-nkpt                  : 51
+k file location       : ./Examples
+k file name           : k_file.dat #k_points.dat    #k_file.dat
+nkpt                  : 5  #241             # 51
 
 
 num kpools            : 3
 
 
-compute eigvecs       : yes
-range                 : A         # Random comments
-min eigval            : -10.25
-max eigval            : 1000.98 
-min index             : 120
-max index             : 300 
+compute eigvecs       : no
+range                 : A         
+min eigval            : -4.25
+max eigval            : 1.98 
+min index             : 2512
+max index             : 2532
 
-num neighbours        : 1
-e_field_z             : 150  
-mb                    : 32
-nb                    : 32
+num neighbours        : 1 
+e_field_z             : 0         # in meV  
+mb                    : 40
+nb                    : 40

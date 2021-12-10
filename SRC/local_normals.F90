@@ -85,7 +85,7 @@ subroutine compute_local_normals()
     end do
 #endif
     
-    call date_time_message("Local normals computed for the system computed at")
+    call date_time_message("Local normals computed for the system computed on")
                
     return
 

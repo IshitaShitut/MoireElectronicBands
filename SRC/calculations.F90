@@ -3,11 +3,11 @@ subroutine diagonalize_and_write()
     use mpi
     implicit none  
     
-    integer :: k_loc    
+    integer :: k_loc, allstat    
 
     call setup_arrays()
 
-    allocate(hamiltonian%mat(hamiltonian%size_))
+    allocate(hamiltonian%mat(hamiltonian%size_),stat=allstat)
     if (pzheevx_vars%comp_evec=='V') then
         allocate(evec%mat(evec%size_))
     else
@@ -18,10 +18,9 @@ subroutine diagonalize_and_write()
     do k_loc = k_file%start, k_file%finish
         call create_hamiltonian(k_loc)
         call diagonalize_hamiltonian()
-   !     call write_output()    
+        call write_output(k_loc)    
     end do  
 
-    call mpi_barrier(mpi_global%comm,mpierr) 
 
     deallocate(hamiltonian%mat)
     if (allocated(evec%mat)) then
@@ -52,7 +51,7 @@ subroutine setup_arrays()
 
     call descinit(hamiltonian%desca, moire%natom, moire%natom, pzheevx_vars%mb, &
                   pzheevx_vars%nb, rsrc, csrc, grid%context, hamiltonian%lld, info)
-
+        
     evec%locq = numroc(moire%natom, pzheevx_vars%mb, grid%mypcol, csrc, grid%npcol)
     evec%locq = max(evec%locq,1)
     evec%lld = numroc(moire%natom, pzheevx_vars%nb, grid%myprow, rsrc, grid%nprow)
