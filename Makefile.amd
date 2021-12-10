@@ -10,16 +10,20 @@ EXE = moire_bands.x
 
 FC = h5pfc
 
-BLAS_LIBS = 
-LAPACK_LIBS = -L${OPENBLAS_ROOT}/lib -lopenblas 
-SCALAPACK_LIBS = -L${NETLIB_SCALAPACK_ROOT}/lib -lscalapack
+BLAS_LIBS = -L${AMDBLIS_ROOT}/lib -lblis-mt
+LAPACK_LIBS = -L${AMDLIBFLAME_ROOT}/lib -lflame
+SCALAPACK_LIBS = -L${AMDSCALAPACK_ROOT}/lib -lscalapack 
+
+#BLAS_LIBS = 
+#LAPACK_LIBS = -L${OPENBLAS_ROOT}/lib -lopenblas 
+#SCALAPACK_LIBS = -L${NETLIB_SCALAPACK_ROOT}/lib -lscalapack
 
 FLFLAGS = ${BLAS_LIBS} ${LAPACK_LIBS} ${SCALAPACK_LIBS}
 
-FCFLAGS = -O3 -I$(SRC_DIR) -ffree-form 
+FCFLAGS = -O3 -I$(SRC_DIR) #-ffree-form 
 
 CPP = cpp -P 
-CPPFLAGS = -D__DEBUG #-D__KPOOL
+CPPFLAGS = #-D__DEBUG #-D__KPOOL
 
 
 all: $(MODOBJS) $(OBJS)

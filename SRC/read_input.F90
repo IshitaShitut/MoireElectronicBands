@@ -19,7 +19,7 @@ subroutine read_input()
     call get_command_argument(1,input_file)
     if (len_trim(input_file)==0) then
         err_msg = "\r\n#!#!#!#!#!#!#!#!\r\nError! No input file"
-        call error_message()
+        call error_message(err_msg)
         call close_mpi()
         call exit
     end if
