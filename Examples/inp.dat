@@ -12,21 +12,21 @@ atom style            : molecular
 
 
 k file location       : ./Examples
-k file name           : k_file.dat #k_points.dat    #k_file.dat
-nkpt                  : 5  #241             # 51
+k file name           : k_points.dat #k_points.dat    #k_file.dat
+nkpt                  : 31             # 51
 
 
 num kpools            : 3
 
 
 compute eigvecs       : no
-range                 : A         
+range                 : I         
 min eigval            : -4.25
 max eigval            : 1.98 
-min index             : 2512
-max index             : 2532
+min index             : 5219
+max index             : 5225
 
 num neighbours        : 1 
 e_field_z             : 0         # in meV  
-mb                    : 40
-nb                    : 40
+mb                    : 32
+nb                    : 32

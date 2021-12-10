@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 fname = 'results.h5'
-natoms = 5044
-no_k_pts = 5
+natoms = 7 #10444
+no_k_pts = 31
 index_ = [i for i in range(no_k_pts)]
 
 data = h5py.File(fname, 'r')

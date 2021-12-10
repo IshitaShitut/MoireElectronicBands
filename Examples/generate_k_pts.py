@@ -34,9 +34,9 @@ def __main__():
     M = np.array([0.5,0.0,0])
     K = np.array([2/3.,1/3.,0])
 
-    number_of_points_path_1 = 80
-    number_of_points_path_2 = 60
-    number_of_points_path_3 = 100
+    number_of_points_path_1 = 10
+    number_of_points_path_2 = 8
+    number_of_points_path_3 = 12
 
     path = [gamma, number_of_points_path_1, M,
             number_of_points_path_2, K,

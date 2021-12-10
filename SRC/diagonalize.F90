@@ -60,11 +60,6 @@ subroutine diagonalize_hamiltonian()
     pzheevx_vars%comp_num_evec, eval, orfac, evec%mat, 1, 1, evec%desca, work, &
     lwork, rwork, lrwork, iwork, liwork, ifail, iclustr, gap, info)
 
-    if (info.ne.0) then    
-        write(err_msg,'(A,I0)') "PZHEEVX completed with info = ", info
-        call error_message(err_msg)
-    end if
-
     if (info.gt.0) then
         if (mod(info,2).ne.0) then
             write(*,*) "One or more eigenvalues failed to converge"
