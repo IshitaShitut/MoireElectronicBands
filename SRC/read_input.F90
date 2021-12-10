@@ -143,6 +143,10 @@ subroutine read_input()
                     read(args_(2),*) pzheevx_vars%mb
                 case ("NB")
                     read(args_(2),*) pzheevx_vars%nb
+                case ("OUTPUT FILE NAME", "OUTPUT_FILE_NAME")
+                    write(output_file_name,'(A)') trim(adjustl(args_(2)))
+                case ("OUTPUT FILE LOCATION", "OUTPUT_FILE_LOCATION")
+                    write(output_file_location,'(A)') trim(adjustl(args_(2)))
                 case default
                     write(err_msg, '(3A)') "\r\n%%%%%\r\nCommand ", trim(args_(1)), " not recognised"
                     call error_message(err_msg)
@@ -171,7 +175,7 @@ subroutine read_input()
     call debug_output(0)
     debug_str = '\r\nCalculations started with the following parameters: '
     call debug_output(0)
-    write(debug_str, '( 2A )') "LAMMPS file location:  ", trim(lammps_file%location)
+    write(debug_str, '( 2A )') "\r\nLAMMPS file location:  ", trim(lammps_file%location)
     call debug_output(0)
     write(debug_str, '(2A)') "LAMMPS file name:  ", trim(lammps_file%name_)
     call debug_output(0)
@@ -211,6 +215,10 @@ subroutine read_input()
     call debug_output(0)
     write(debug_str, '(A,F0.6,A)') "Electric Field applied in the Z direction : ", &
                                     E_field, " meV"
+    call debug_output(0)
+    write(debug_str, '(2A)') "Output file name : ", output_file_name
+    call debug_output(0)
+    write(debug_str, '(2A)') "Output file location : ", output_file_location
     call debug_output(0)
     debug_str = '\r\n========================================================='
     call debug_output(0)
@@ -268,6 +276,8 @@ subroutine default_variables()
     pzheevx_vars%nb = -1
     no_neigh = 1
     E_field = 0.0
+    output_file_name = 'results.hdf5'
+    output_file_location = './'
 
     return
 
@@ -279,6 +289,8 @@ subroutine sanitize_input()
     use global_variables
     implicit none
     integer :: len_
+    character(char_len) :: file_name
+    logical :: file_exists
 
     len_ = len_trim(lammps_file%location)
 
@@ -291,7 +303,14 @@ subroutine sanitize_input()
     if (k_file%location(len_:len_).ne.'/') then
         write(k_file%location,'(2A)') trim(adjustl(k_file%location)),'/'
     end if
-    
+   
+    len_ = len_trim(output_file_location)
+
+    if (output_file_location(len_:len_).ne.'/') then
+        write(output_file_location,'(2A)') trim(adjustl(output_file_location)),'/'
+    end if
+
+
     if (pzheevx_vars%mb == -1) then
         pzheevx_vars%mb = min(32,moire%natom)
     end if
@@ -325,7 +344,22 @@ subroutine sanitize_input()
         call error_message(err_msg)
         call exit
     end if
-    
+   
+    write(file_name, '(2A)') trim(adjustl(output_file_location)), &
+                             trim(adjustl(output_file_name))
+
+    inquire(file=file_name, exist=file_exists)
+
+    if (file_exists) then
+        write(err_msg,'(4A)') "\r\n File ", trim(adjustl(output_file_name)), &
+                              " already exists at ", trim(adjustl(output_file_location))
+        call error_message(err_msg)
+        write(output_file_name,'(2A)') trim(adjustl(output_file_name)),'_v2'
+        write(err_msg,'(2A)') "\r\n Output file being renamed as ", &
+                              trim(adjustl(output_file_name))
+        call error_message(err_msg)
+    end if
+
     return
 
 end subroutine

@@ -76,10 +76,15 @@ subroutine diagonalize_hamiltonian()
         end if
     end if
 
+#ifdef __DEBUG    
+#ifdef __KPOOL
+    if (mpi_global%local==0) then
+#else
     if (mpi_global%rank==0) then
+#endif
         write(*,*) eval(1:pzheevx_vars%comp_num_eval)
     end if
-
+#endif
 
     deallocate(work)
     deallocate(iwork)
