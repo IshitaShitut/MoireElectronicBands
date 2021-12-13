@@ -4,7 +4,6 @@ subroutine initialize_mpi()
     use global_variables
 
     implicit none
-    integer :: k
 
     call mpi_init(mpierr)
     mpi_global%comm = MPI_COMM_WORLD

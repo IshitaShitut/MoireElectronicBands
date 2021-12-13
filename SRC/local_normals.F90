@@ -17,9 +17,7 @@ subroutine compute_local_normals()
 
     do i = i_start, i_end
         
-        ri(1) = moire%real_pos(i,1)
-        ri(2) = moire%real_pos(i,2)
-        ri(3) = moire%real_pos(i,3)
+        ri = moire%real_pos(i,:)
         counter = 0
         do j = 1, moire%natom
             if (j.ne.i) then
@@ -42,30 +40,26 @@ subroutine compute_local_normals()
                             call insert_in_list(min_list,rj,dist)
                         end if
                     end do
-                end do     
+                end do 
             end if
         end do
 
         n = 0.0
 
         do k=1,3
+            v1 = min_list(k,1:3) - ri
+            v1 = v1/norm2(v1)
             do l = k+1,3
-                do p = 1,3
-                    v1(p) = -ri(p) + min_list(k,p)
-                    v2(p) = -ri(p) + min_list(l,p)
-                end do
-                v1 = v1/norm2(v1)
+                v2 = min_list(l,1:3) - ri
                 v2 = v2/norm2(v2)
-                call cross_product(v1,v2, nkl)
+                call cross_product(v1,v2,nkl)
                 n = n+nkl
             end do
         end do
 
         n = n/norm2(n)
         
-        moire%normal(i,1) = n(1)
-        moire%normal(i,2) = n(2)
-        moire%normal(i,3) = n(3)
+        moire%normal(i,:) = n
     end do
 
     call mpi_allreduce(MPI_IN_PLACE, moire%normal, moire%natom*3, MPI_DOUBLE_PRECISION, &
@@ -101,7 +95,7 @@ subroutine insert_in_list(list, r, dist)
     integer :: i, j, k
     logical :: belong
 
-    call shellsort(list)
+    call sortcol(list)
     belong = .false.
     do i = 1,3
         if (dist < list(i,4)) then
@@ -125,37 +119,18 @@ end subroutine insert_in_list
 
 
 
-subroutine shellsort(a)
+subroutine sortcol(a)
     implicit none
-    integer :: i,j,increment
-    real*8 :: temp, t1,t2,t3
-    real*8, intent(inout) :: a(3,4)
-
-    increment = size(a(:,1))/2
-    do while (increment>0)
-        do i=increment+1,size(a(:,1))
-            j=i
-            temp = a(i,4)
-            t1 = a(i,1)
-            t2 = a(i,2)
-            t3 = a(i,3)
-            do while(j>=(increment+1).and.a(j-increment,4)>temp)
-                a(j,4) = a(j-increment,4)
-                a(j,1) = a(j-increment,1)
-                a(j,2) = a(j-increment,2)
-                a(j,3) = a(j-increment,3)
-                j = j-increment
-            end do
-            a(j,4) = temp
-            a(j,1) = t1
-            a(j,2) = t2
-            a(j,3) = t3
-        end do
-        if (increment == 2) then
-            increment = 1
-        else
-            increment = increment*5/11
-        end if
+    real*8, intent(inout) :: a(3, 4)
+    integer :: i, j
+    real*8 :: tmp(4)
+    do i = 1, 3
+       do j=i+1,3
+           if (a(i,4).gt.a(j,4)) then
+               tmp = a(i,:)
+               a(i,:) = a(j,:)
+               a(j,:) = tmp
+           end if
+       end do
     end do
-    return
-end subroutine shellsort
+end subroutine sortcol

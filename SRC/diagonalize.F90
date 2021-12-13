@@ -15,7 +15,6 @@ subroutine diagonalize_hamiltonian()
     
     character(len=2000) :: done_line
 
-
     ia = 1
     ja = 1
     lgap = grid%nprow*grid%npcol
@@ -33,7 +32,7 @@ subroutine diagonalize_hamiltonian()
     allocate(iwork(1))
 
 
-    call pzheevx(pzheevx_vars%comp_evec, pzheevx_vars%range_, 'L', moire%natom,  &
+    call pzheevx(pzheevx_vars%comp_evec, pzheevx_vars%range_, 'U', moire%natom,  &
     hamiltonian%mat, ia, ja, hamiltonian%desca, pzheevx_vars%vl,pzheevx_vars%vu, &
     pzheevx_vars%il, pzheevx_vars%iu, abstol, pzheevx_vars%comp_num_eval, &
     pzheevx_vars%comp_num_evec, eval, orfac, evec%mat, 1, 1, evec%desca, work, &
@@ -44,7 +43,6 @@ subroutine diagonalize_hamiltonian()
     lrwork = int(rwork(1)+1)
     liwork = int(iwork(1)+1)
     
-
     deallocate(work)
     deallocate(rwork)
     deallocate(iwork)
@@ -52,13 +50,14 @@ subroutine diagonalize_hamiltonian()
     allocate(work(lwork))
     allocate(rwork(lrwork))
     allocate(iwork(liwork))
-
-
-    call pzheevx(pzheevx_vars%comp_evec, pzheevx_vars%range_, 'L', moire%natom,  &
-    hamiltonian%mat, ia, ja, hamiltonian%desca, pzheevx_vars%vl,pzheevx_vars%vu, &
+  
+    call pzheevx(pzheevx_vars%comp_evec, pzheevx_vars%range_, 'U', moire%natom,   &
+    hamiltonian%mat, ia, ja, hamiltonian%desca, pzheevx_vars%vl, pzheevx_vars%vu, &
     pzheevx_vars%il, pzheevx_vars%iu, abstol, pzheevx_vars%comp_num_eval, &
-    pzheevx_vars%comp_num_evec, eval, orfac, evec%mat, 1, 1, evec%desca, work, &
+    pzheevx_vars%comp_num_evec, eval ,orfac, evec%mat, 1, 1, evec%desca, work,    &
     lwork, rwork, lrwork, iwork, liwork, ifail, iclustr, gap, info)
+    
+
 
     if (info.gt.0) then
         if (mod(info,2).ne.0) then

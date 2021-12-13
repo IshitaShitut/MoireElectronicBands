@@ -4,7 +4,7 @@ subroutine diagonalize_and_write()
     implicit none  
     
     integer :: k_loc, allstat    
-
+    
     call setup_arrays()
 
     allocate(hamiltonian%mat(hamiltonian%size_),stat=allstat)
@@ -23,6 +23,7 @@ subroutine diagonalize_and_write()
 
 
     deallocate(hamiltonian%mat)
+    deallocate(eval)
     if (allocated(evec%mat)) then
         deallocate(evec%mat)
     end if

@@ -7,9 +7,9 @@ subroutine read_input()
     implicit none
     
     character(len=char_len) :: input_file
-    integer :: error, len_data
+    integer :: error
     character(len=char_len) :: data_ 
-    integer :: l_whitespace, pos, i
+    integer :: pos, i
     character(char_len), dimension(2) :: args_
     integer, parameter :: inp_unit = 20
     character(1), external :: capital

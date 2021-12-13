@@ -4,8 +4,8 @@
 
 
 lammps file location  : ./Examples
-lammps file name      : lammps_tblg_1.12
-natom                 : 10444
+lammps file name      : lammps_tblg_1.61 #.dat_test_drip
+natom                 : 5044
 atom types            : 1
 atom style            : molecular
 
@@ -18,17 +18,17 @@ nkpt                  : 31
 num kpools            : 3
 
 
-compute eigvecs       : no
-range                 : I         
+compute eigvecs       : yes
+range                 : A         
 min eigval            : -4.25
 max eigval            : 1.98 
-min index             : 5212
-max index             : 5231
+min index             : 10
+max index             : 19
 
 num neighbours        : 1 
-e_field_z             : 150         # in meV  
+e_field_z             : 0         # in meV  
 mb                    : 32
 nb                    : 32
 
-output file name      : bands_1.12_E150.hdf5
+output file name      : bands_1.61_E0.hdf5
 output_file_location  : ./Examples

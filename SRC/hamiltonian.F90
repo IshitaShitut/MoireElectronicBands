@@ -68,7 +68,6 @@ subroutine create_hamiltonian(k_indx)
 
 end subroutine
 
-
 subroutine compute_hij(i,j,k_indx,hij)
 
     use global_variables
