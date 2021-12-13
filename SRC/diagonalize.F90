@@ -12,8 +12,10 @@ subroutine diagonalize_hamiltonian()
     integer :: lwork, liwork, lrwork, lgap, lifail, liclustr, info
     integer, parameter :: abstol = -1
     integer, parameter :: orfac = -1
-    
-    character(len=2000) :: done_line
+    integer :: anb, sqnpc, nps, nhetrd_lwork
+    integer, external :: numroc, iceil, pjlaenv
+    integer :: nn, neig, np0, mq0
+    character(len=char_len) :: done_line
 
     ia = 1
     ja = 1
@@ -39,9 +41,33 @@ subroutine diagonalize_hamiltonian()
     lwork, rwork, lrwork, iwork, liwork, ifail, iclustr, gap, info)
 
 
-    lwork  = int(work(1)+1)
-    lrwork = int(rwork(1)+1)
-    liwork = int(iwork(1)+1)
+    ! Find lwork 
+    ! http://www.netlib.org/scalapack/explore-html/d8/d3b/pzheevx_8f_source.html
+    ! ----------
+    lwork  = int(abs(work(1)))+1
+    anb = pjlaenv(hamiltonian%desca(CTXT_), 3, 'PZHETTRD', 'L', 0, 0, 0, 0)
+    sqnpc = sqrt(dble(grid%nprow*grid%npcol))
+    nps = max(numroc(moire%natom, 1, 0, 0, sqnpc),2)
+    nhetrd_lwork = moire%natom + 2*(anb+1)*(4*nps+2)+(nps+1)*nps
+    lwork = max(lwork,nhetrd_lwork)
+
+
+    ! Find lrwork
+    ! http://www.netlib.org/scalapack/explore-html/d8/d3b/pzheevx_8f_source.html
+    ! ----------
+
+    lrwork = int(abs(rwork(1)))+1
+    nn = max(moire%natom, hamiltonian%desca(NB_), 2)
+    neig = moire%natom
+    np0 = numroc(nn, hamiltonian%desca(NB_), 0,0, grid%nprow)
+    mq0 = numroc(max(neig, hamiltonian%desca(NB_),2), hamiltonian%desca(NB_), 0,0,grid%npcol)
+    lrwork = max(4*moire%natom + max(5*nn, np0*mq0) + iceil(neig, grid%nprow*grid%npcol)*nn, lrwork)
+
+    ! Find liwork
+    ! http://www.netlib.org/scalapack/explore-html/d8/d3b/pzheevx_8f_source.html
+    ! ------------
+    liwork = int(abs(iwork(1)))+1
+    liwork = max(liwork, 6*max(moire%natom, grid%npcol*grid%nprow+1,4))
     
     deallocate(work)
     deallocate(rwork)
@@ -61,7 +87,8 @@ subroutine diagonalize_hamiltonian()
 
     if (info.gt.0) then
         if (mod(info,2).ne.0) then
-            write(*,*) "One or more eigenvalues failed to converge"
+            write(debug_str,'(A)') "One or more eigenvalues failed to converge"
+            call debug_output(0)
         end if
         if (mod(info/2, 2).ne.0) then
             write(*,*) "Eigenvectors corresponding to the following indices could not be orthogonalized"

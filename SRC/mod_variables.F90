@@ -1,6 +1,6 @@
 module global_variables
     
-    integer, parameter :: char_len=2000
+    integer, parameter :: char_len=2500
     character(len=char_len) :: err_msg, debug_str
 
     type blacs_info
@@ -35,6 +35,7 @@ module global_variables
         double precision, allocatable, dimension(:,:) :: real_pos, crys, normal
         integer, allocatable, dimension(:) :: at_types_i
         double precision, dimension(3,3) :: lat , rec_lat
+        double precision :: onsite_en
     end type
 
     type complex_arrays

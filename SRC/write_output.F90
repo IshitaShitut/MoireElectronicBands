@@ -7,7 +7,7 @@ subroutine write_output(k_indx)
     implicit none
     
     integer, intent(in) :: k_indx
-    character(len=char_len) :: file_name, group_name
+    character(len=char_len) :: file_name, group_name, done_line
     logical :: file_exists
     
     ! HDF5 Variables
@@ -92,6 +92,10 @@ subroutine write_output(k_indx)
     
     call h5sclose_f(filespace,hdf5_error)
     call h5dclose_f(dset_id, hdf5_error)
+
+    write(done_line,"(I0,3A)") pzheevx_vars%comp_num_eval, " eigenvalues written to ", &
+                              trim(adjustl(file_name)), " on "
+    call date_time_message(trim(done_line))
 
     ! --------------------------
     ! Store Eigenvectors

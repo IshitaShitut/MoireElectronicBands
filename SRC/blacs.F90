@@ -209,7 +209,7 @@ end subroutine
 
 
 
-
+#ifdef __KPOOL
 subroutine get_color(proc_id, total_procs, no_of_groups, val, key_val, num_each)
 
     ! returns the color to split the communicators depending
@@ -240,4 +240,4 @@ subroutine get_color(proc_id, total_procs, no_of_groups, val, key_val, num_each)
     return
 
 end subroutine
-
+#endif

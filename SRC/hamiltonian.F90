@@ -105,10 +105,11 @@ subroutine compute_hij(i,j,k_indx,hij)
         end do
     else
         if (i.le.int(moire%natom/2)) then
-            hij = cmplx( E_field/2000, 0)
+            hij = cmplx(E_field/2000, 0) 
         else 
             hij = cmplx(-E_field/2000, 0)
         end if
+        hij = hij - cmplx(moire%onsite_en/1000,0)
     end if
 
     return

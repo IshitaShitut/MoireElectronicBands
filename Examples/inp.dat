@@ -18,15 +18,16 @@ nkpt                  : 31
 num kpools            : 3
 
 
-compute eigvecs       : yes
-range                 : A         
-min eigval            : -4.25
-max eigval            : 1.98 
-min index             : 10
-max index             : 19
+compute eigvecs       : no
+range                 : I         
+min eigval            : -0.400
+max eigval            : 0.400 
+min index             : 2515
+max index             : 2530
 
 num neighbours        : 1 
-e_field_z             : 0         # in meV  
+e_field_z             : 0              # in meV  
+onsite energy         : 788.464        # in meV
 mb                    : 32
 nb                    : 32
 

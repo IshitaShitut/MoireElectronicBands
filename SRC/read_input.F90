@@ -139,6 +139,8 @@ subroutine read_input()
                     read(args_(2), *) no_neigh
                 case ("E FIELD Z", "E_FIELD_Z")
                     read(args_(2), *) E_field
+                case ("ONSITE_ENERGY", "ONSITE ENERGY")
+                    read(args_(2), *) moire%onsite_en
                 case ("MB")
                     read(args_(2),*) pzheevx_vars%mb
                 case ("NB")
@@ -216,6 +218,8 @@ subroutine read_input()
     write(debug_str, '(A,F0.6,A)') "Electric Field applied in the Z direction : ", &
                                     E_field, " meV"
     call debug_output(0)
+    write(debug_str, '(A,F0.6,A)') "Onsite energy: ", moire%onsite_en, " meV"
+    call debug_output(0)
     write(debug_str, '(2A)') "Output file name : ", output_file_name
     call debug_output(0)
     write(debug_str, '(2A)') "Output file location : ", output_file_location
@@ -276,6 +280,7 @@ subroutine default_variables()
     pzheevx_vars%nb = -1
     no_neigh = 1
     E_field = 0.0
+    moire%onsite_en = 0.0
     output_file_name = 'results.hdf5'
     output_file_location = './'
 
@@ -291,6 +296,7 @@ subroutine sanitize_input()
     integer :: len_
     character(char_len) :: file_name
     logical :: file_exists
+    integer :: counter
 
     len_ = len_trim(lammps_file%location)
 
@@ -349,16 +355,20 @@ subroutine sanitize_input()
                              trim(adjustl(output_file_name))
 
     inquire(file=file_name, exist=file_exists)
-
-    if (file_exists) then
+    counter = 0
+    do while (file_exists) 
         write(err_msg,'(4A)') "\r\n File ", trim(adjustl(output_file_name)), &
                               " already exists at ", trim(adjustl(output_file_location))
         call error_message(err_msg)
-        write(output_file_name,'(2A)') trim(adjustl(output_file_name)),'_v2'
+        counter = counter + 1
+        write(output_file_name,'(2A,I0)') trim(adjustl(output_file_name)),'_v',counter
         write(err_msg,'(2A)') "\r\n Output file being renamed as ", &
                               trim(adjustl(output_file_name))
+        write(file_name, '(2A)') trim(adjustl(output_file_location)), &
+                                 trim(adjustl(output_file_name))
         call error_message(err_msg)
-    end if
+        inquire(file=file_name, exist=file_exists)
+    end do
 
     return
 
