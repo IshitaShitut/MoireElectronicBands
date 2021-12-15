@@ -31,5 +31,5 @@ onsite energy         : 0.0              # in meV
 mb                    : 4
 nb                    : 4
 
-output file name      : bands_21.8_E0-Kpt.hdf5
+output file name      : bands_21.8_E0-offset
 output_file_location  : /home/mshinjan/MoireElectronicBands/Examples/tblg_21.8

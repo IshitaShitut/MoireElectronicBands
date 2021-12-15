@@ -110,32 +110,32 @@ subroutine write_output(k_indx)
     ! we have to reverse this distribution and select the coordinates in the 
     ! global file that correspond to the elements in the  
 
-    if (pzheevx_vars%comp_evec=='V') then
-        call pzlaprnt(moire%natom, pzheevx_vars%comp_num_evec, evec%mat, 1, 1, &
-                      evec%desca, 0, 0, 'Z', 6, work_prnt) 
-        dim_evec(1) = moire%natom
-        dim_evec(2) = pzheevx_vars%comp_num_evec
-!        call h5screate_simple_f(2, dim_evec, filespace, hdf5_error)
-!        call h5dcreate_f(group_id, 'eigvec.real', H5T_IEEE_F64LE, filespace, &
-!                         dset_id, hdf5_error)
-!        call h5pcreate_f(H5P_DATASET_XFER_F, dlist_id, hdf5_error)
-!        call h5pset_dxpl_mpio_f(dlist_id, H5D_MPIO_COLLECTIVE_F, hdf5_error)        
-
-
-        allocate(evec_selection_arr(2 , evec%size_)) 
-
-        call reverse_block_cyclic_dist()
-
-        do i=1,evec%size_
-            write(*,'(5I6)') mpi_global%rank, grid%myprow, grid%mypcol, evec_selection_arr(:,i)
-            call mpi_barrier(mpi_global%comm, mpierr)
-        end do
-
-        deallocate(evec_selection_arr)
-
-!        write(*,*) "Writing eigenvectors"
-    end if
-
+!    if (pzheevx_vars%comp_evec=='V') then
+!        call pzlaprnt(moire%natom, pzheevx_vars%comp_num_evec, evec%mat, 1, 1, &
+!                      evec%desca, 0, 0, 'Z', 6, work_prnt) 
+!        dim_evec(1) = moire%natom
+!        dim_evec(2) = pzheevx_vars%comp_num_evec
+!!        call h5screate_simple_f(2, dim_evec, filespace, hdf5_error)
+!!        call h5dcreate_f(group_id, 'eigvec.real', H5T_IEEE_F64LE, filespace, &
+!!                         dset_id, hdf5_error)
+!!        call h5pcreate_f(H5P_DATASET_XFER_F, dlist_id, hdf5_error)
+!!        call h5pset_dxpl_mpio_f(dlist_id, H5D_MPIO_COLLECTIVE_F, hdf5_error)        
+!
+!
+!        allocate(evec_selection_arr(2 , evec%size_)) 
+!
+!        call reverse_block_cyclic_dist()
+!
+!        do i=1,evec%size_
+!            write(*,'(5I6)') mpi_global%rank, grid%myprow, grid%mypcol, evec_selection_arr(:,i)
+!            call mpi_barrier(mpi_global%comm, mpierr)
+!        end do
+!
+!        deallocate(evec_selection_arr)
+!
+!!        write(*,*) "Writing eigenvectors"
+!    end if
+!
     call h5gclose_f(group_id,hdf5_error)
     call h5pclose_f(plist_id, hdf5_error)
     call h5fclose_f(file_id, hdf5_error)

@@ -220,9 +220,9 @@ subroutine read_input()
     call debug_output(0)
     write(debug_str, '(A,F0.6,A)') "Onsite energy: ", moire%onsite_en, " meV"
     call debug_output(0)
-    write(debug_str, '(2A)') "Output file name : ", output_file_name
+    write(debug_str, '(2A)') "Output file name : ", trim(output_file_name)
     call debug_output(0)
-    write(debug_str, '(2A)') "Output file location : ", output_file_location
+    write(debug_str, '(2A)') "Output file location : ", trim(output_file_location)
     call debug_output(0)
     debug_str = '\r\n========================================================='
     call debug_output(0)
@@ -294,7 +294,7 @@ subroutine sanitize_input()
     use global_variables
     implicit none
     integer :: len_
-    character(char_len) :: file_name
+    character(char_len) :: file_name, full_file_details
     logical :: file_exists
     integer :: counter
 
@@ -350,25 +350,34 @@ subroutine sanitize_input()
         call error_message()
         call exit
     end if
-   
-    write(file_name, '(2A)') trim(adjustl(output_file_location)), &
-                             trim(adjustl(output_file_name))
+  
 
-    inquire(file=file_name, exist=file_exists)
-    counter = 0
-    do while (file_exists) 
-        write(err_msg,'(4A)') "\r\n File ", trim(adjustl(output_file_name)), &
+    write(full_file_details, '(3A)') trim(adjustl(output_file_location)), &
+                                     trim(adjustl(output_file_name)),'.hdf5'
+
+    inquire(file=full_file_details, exist=file_exists)
+
+    if (file_exists) then
+        write(err_msg,'(5A)') "\r\n File ", trim(adjustl(output_file_name)),'.hdf5', &
                               " already exists at ", trim(adjustl(output_file_location))
         call error_message()
-        counter = counter + 1
-        write(output_file_name,'(2A,I0)') trim(adjustl(output_file_name)),'_v',counter
+
+        counter = 0
+
+        do while (file_exists) 
+            counter = counter + 1
+            write(file_name,'(2A,I0)') trim(adjustl(output_file_name)),'_v',counter
+            write(full_file_details, '(3A)') trim(adjustl(output_file_location)), &
+                                             trim(adjustl(file_name)),'.hdf5'
+            inquire(file=full_file_details, exist=file_exists)
+        end do
+
+        write(output_file_name,'(2A)') trim(adjustl(file_name)),'.hdf5'
         write(err_msg,'(2A)') "\r\n Output file being renamed as ", &
                               trim(adjustl(output_file_name))
-        write(file_name, '(2A)') trim(adjustl(output_file_location)), &
-                                 trim(adjustl(output_file_name))
         call error_message()
-        inquire(file=file_name, exist=file_exists)
-    end do
+
+    end if
 
     return
 

@@ -10,15 +10,16 @@ EXE = moire_bands.x
 
 FC = h5pfc
 
-BLAS_LIBS = ${MKLROOT}/lib/intel64/libmkl_blas95_ilp64.a  
-LAPACK_LIBS = ${MKLROOT}/lib/intel64/libmkl_lapack95_ilp64.a 
-SCALAPACK_LIBS = -L${MKLROOT}/lib/intel64 -lmkl_scalapack_ilp64 -lmkl_intel_ilp64 -lmkl_intel_thread -lmkl_core -lmkl_blacs_intelmpi_ilp64 -liomp5 -lpthread -lm -ldl
+BLAS_LIBS = 
+LAPACK_LIBS = -L${OPENBLAS_ROOT}/lib -lopenblas 
+SCALAPACK_LIBS = -L${NETLIB_SCALAPACK_ROOT}/lib -lscalapack
 
 FLFLAGS = ${BLAS_LIBS} ${LAPACK_LIBS} ${SCALAPACK_LIBS}
-FCFLAGS = -O3 -g -ip -assume bscc -I${MKLROOT}/include/intel64/ilp64 -i8 -I${MKLROOT}/include -fPIC -qopenmp -xHost -Winline  
+
+FCFLAGS = -g -fcheck=bounds -fbacktrace -O3 -I$(SRC_DIR) -fPIC -Wall 
 
 CPP = cpp -P 
-CPPFLAGS = #-D__DEBUG #-D__KPOOL -D__DEBUG
+CPPFLAGS = -D__DEBUG #-D__KPOOL
 
 
 all: $(MODOBJS) $(OBJS)
@@ -27,7 +28,8 @@ all: $(MODOBJS) $(OBJS)
 $(MODOBJS): %.o: %.F90
 # $(CPP) $(CPPFLAGS) $< | sed '/^#pragma/d' > $*.f90
 	$(CPP) $(CPPFLAGS) $< $*.f90
-	$(FC) $(FCFLAGS) -module $(SRC_DIR) -c $*.f90 -o $@
+	$(FC) $(FCFLAGS) -J $(SRC_DIR) -c $*.f90 -o $@
+# $(FC) $(FCFLAGS) -module $(SRC_DIR) -c $*.f90 -o $@
 
 $(OBJS): %.o: %.F90
 	$(CPP) $(CPPFLAGS) $< $*.f90
