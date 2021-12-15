@@ -19,7 +19,7 @@ subroutine read_input()
     call get_command_argument(1,input_file)
     if (len_trim(input_file)==0) then
         err_msg = "\r\n#!#!#!#!#!#!#!#!\r\nError! No input file"
-        call error_message(err_msg)
+        call error_message()
         call close_mpi()
         call exit
     end if
@@ -30,7 +30,7 @@ subroutine read_input()
 
     if (error.ne.0) then
         write(err_msg,'(2A)') 'Error reading input file ', trim(adjustl(input_file))
-        call error_message(err_msg)
+        call error_message()
         call exit
     end if
 
@@ -112,7 +112,7 @@ subroutine read_input()
                         write(err_msg, '(3A)') "Could not interpret command ", &
                                                args_(2), &
                                                "\r\nEigenvectors will not be computed."
-                        call error_message(err_msg)
+                        call error_message()
                         pzheevx_vars%comp_evec = 'N'
                     end if
                 case ("RANGE")
@@ -151,14 +151,14 @@ subroutine read_input()
                     write(output_file_location,'(A)') trim(adjustl(args_(2)))
                 case default
                     write(err_msg, '(3A)') "\r\n%%%%%\r\nCommand ", trim(args_(1)), " not recognised"
-                    call error_message(err_msg)
+                    call error_message()
                     err_msg = "Ignoring this command\r\n"
-                    call error_message(err_msg)  
+                    call error_message()  
             end select
 
         elseif (error.gt.0) then
             err_msg = 'Error encountered while reading file'
-            call error_message(err_msg)
+            call error_message()
             call exit
         else
 #ifdef __DEBUG
@@ -341,13 +341,13 @@ subroutine sanitize_input()
 
     if ((pzheevx_vars%range_ == 'I').and.(pzheevx_vars%il.gt.pzheevx_vars%iu)) then
         err_msg = "\r\n Invalid input for eigenvalue indices to be computed"
-        call error_message(err_msg)
+        call error_message()
         call exit
     end if
 
     if ((pzheevx_vars%range_ == 'V').and.(pzheevx_vars%vl .gt. pzheevx_vars%vu)) then
         err_msg = "\r\n Invalid input for the interval in which eigenvalue is to be computed"
-        call error_message(err_msg)
+        call error_message()
         call exit
     end if
    
@@ -359,14 +359,14 @@ subroutine sanitize_input()
     do while (file_exists) 
         write(err_msg,'(4A)') "\r\n File ", trim(adjustl(output_file_name)), &
                               " already exists at ", trim(adjustl(output_file_location))
-        call error_message(err_msg)
+        call error_message()
         counter = counter + 1
         write(output_file_name,'(2A,I0)') trim(adjustl(output_file_name)),'_v',counter
         write(err_msg,'(2A)') "\r\n Output file being renamed as ", &
                               trim(adjustl(output_file_name))
         write(file_name, '(2A)') trim(adjustl(output_file_location)), &
                                  trim(adjustl(output_file_name))
-        call error_message(err_msg)
+        call error_message()
         inquire(file=file_name, exist=file_exists)
     end do
 

@@ -1,10 +1,12 @@
 subroutine read_k_file()
     use global_variables
     implicit none
-    integer :: i, j, error
+    integer :: i, error
     character(len=char_len) :: file_name_ , temp
 
 #ifdef __KPOOL
+    integer :: j
+
     call distribution_length(k_file%npt, mpi_local%color-1, num_pools, &
                              k_file%start, k_file%finish)
 #else
@@ -29,8 +31,8 @@ subroutine read_k_file()
     open(unit=25, file=trim(adjustl(file_name_)),action='read',iostat=error)
     
     if (error.ne.0) then
-        write(err_msg,'(2A)') 'Error reading ', trim(adjustl(file_name_))
-        call error_message(err_msg)
+        write(err_msg, '(2A)') 'Error reading ', trim(adjustl(file_name_))
+        call error_message()
         call exit
     end if
 

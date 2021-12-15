@@ -1,0 +1,35 @@
+# -----------------------------------------------------------------
+# Input file for electronic Band Structure Calculations in Moire
+# -----------------------------------------------------------------
+
+
+lammps file location  : ./Examples
+lammps file name      : lammps_tblg_0.50 #.dat_test_drip
+natom                 : 51484
+atom types            : 1
+atom style            : molecular
+
+
+k file location       : ./Examples
+k file name           : k_points_K.dat 
+nkpt                  : 1           
+
+
+num kpools            : 3
+
+
+compute eigvecs       : no
+range                 : I         
+min eigval            : -0.400
+max eigval            : 0.400 
+min index             : 25741
+max index             : 25744
+
+num neighbours        : 1 
+e_field_z             : 0              # in meV  
+onsite energy         : 0.0        # in meV
+mb                    : 32
+nb                    : 32
+
+output file name      : bands_0.5_E0-Kpt.hdf5
+output_file_location  : ./Examples

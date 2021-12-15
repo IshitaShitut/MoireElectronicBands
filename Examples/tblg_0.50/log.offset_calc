@@ -1,0 +1,40 @@
+Program started with 64 MPI processes on 14/12/2021 at 00:33:17 UTC: +5:30
+
+Reading input file : inp_offset_calc.dat
+
+%%%%%
+Command NUM KPOOLS not recognised
+Ignoring this command
+
+
+=========================================================
+
+Calculations started with the following parameters:
+
+LAMMPS file location:  /home/mshinjan/MoireElectronicBands/Examples/tblg_0.50/
+LAMMPS file name:  lammps_tblg_0.50
+Number of atoms:  51484
+Atom types:  1
+LAMMPS atom style:  molecular
+K file location:  /home/mshinjan/MoireElectronicBands/Examples/tblg_0.50/
+K file name:  k_points_K.dat
+Number of K-points:  1
+Compute Eigenvectors: N
+Range of the calculation: I
+Minimum eigenvalue : .000000
+Maximum eigenvalue : .000000
+Minimum eigenvalue index : 25741
+Maximum eigenvalue index : 25744
+Block size for scalapack diagonalization : (32,32)
+Number of neighbour cells in each direction to scan : 1
+Electric Field applied in the Z direction : .000000 meV
+Onsite energy: .000000 meV
+Output file name : bands_0.5_E0-Kpt.hdf5
+Output file location : /home/mshinjan/MoireElectronicBands/Examples/tblg_0.50/
+
+=========================================================
+Local normals computed for the system computed on 14/12/2021 at 00:33:31 UTC: +5:30
+Hamiltonian created for k-pt no. 1 on 14/12/2021 at 00:34:49 UTC: +5:30
+Diagonalization completed on 14/12/2021 at 00:48:44 UTC: +5:30
+4 eigenvalues written to /home/mshinjan/MoireElectronicBands/Examples/tblg_0.50/bands_0.5_E0-Kpt.hdf5 on 14/12/2021 at 00:48:44 UTC: +5:30
+Calculations completed on 14/12/2021 at 00:48:45 UTC: +5:30

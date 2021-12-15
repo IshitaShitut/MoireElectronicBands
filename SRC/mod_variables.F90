@@ -1,5 +1,7 @@
 module global_variables
     
+    use hdf5
+
     integer, parameter :: char_len=2500
     character(len=char_len) :: err_msg, debug_str
 
@@ -53,15 +55,15 @@ module global_variables
     type(bz_points) :: k_file
     type(system) :: moire
     type(complex_arrays) :: hamiltonian, evec
-    double precision, allocatable, dimension(:) :: eval(:) 
+    integer(hsize_t), allocatable, dimension(:,:) :: evec_selection_arr
+    double precision, allocatable, dimension(:) :: eval
     type(scalapack_variables) :: pzheevx_vars
     integer, parameter :: BLOCK_CYCLIC_2D = 1, DLEN_ = 9, DTYPE_ = 1,     &
                           CTXT_ = 2, M_ = 3, N_ = 4, MB_ = 5, NB_ = 6,    &
                           RSRC_ = 7, CSRC_ = 8, LLD_ = 9
     integer :: no_neigh
     double precision :: E_field
-
-
+    
 
 
     type mpi_group

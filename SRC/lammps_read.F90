@@ -19,7 +19,7 @@ SUBROUTINE read_lammps_data()
 
   IF (error.ne.0) THEN
      WRITE(err_msg,'(2A)') 'Error reading LAMMPS file ', trim(adjustl(file_name_))
-     CALL error_message(err_msg)
+     CALL error_message()
      CALL EXIT
   END IF
 
@@ -122,9 +122,10 @@ SUBROUTINE read_lammps_data()
       END DO
 #endif
     CASE DEFAULT
-        err_msg = "Atom style not supported. Supported styles are atomic and molecular"
-        CALL error_message(err_msg)
-        err_msg = "Cannot read LAMMPS file"
+        write(err_msg,'(A)') "Atom style not supported. Supported styles are atomic and molecular"
+        CALL error_message()
+        write(err_msg,'(A)') "Cannot read LAMMPS file"
+        CALL error_message()
         CALL EXIT
   END SELECT
 
