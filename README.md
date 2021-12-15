@@ -6,10 +6,12 @@ The supported Moire structures right now are in LAMMPS output format.
 ## Prerequisites
 
 The prerequisites to run this code are:   
-```
-HDF5 (checked for v1.12.0.0 and v1.12.1)  
-Scalapack
-```
+
+>
+> Parallel HDF5 (checked for v1.12.0.0 and v1.12.1)  
+> Scalapack (checked with Intel MKL)
+>
+
 
 ## Instructions for usage
 
@@ -30,35 +32,38 @@ A sample input file would look like this:
 # -----------------------------------------------------------------
 
 
-lammps file location  : ./Examples
-lammps file name      : lammps_tblg_1.12
-natom                 : 10444
-atom types            : 1
-atom style            : molecular
+lammps file location  : 
+lammps file name      :
+natom                 : 
+atom types            : 
+atom style            :
 
 
-k file location       : ./Examples
-k file name           : k_points.dat
-nkpt                  : 31
+k file location       : 
+k file name           : 
+nkpt                  : 
 
 
-num kpools            : 3
+num kpools            : 
 
 
-compute eigvecs       : no
-range                 : I
-min eigval            : -4.25
-max eigval            : 1.98
-min index             : 5212
-max index             : 5231
+compute eigvecs       : yes/no
+range                 : A/I/V    # A = compute all evals
+                                 # I = compute eigenvalues from min index to max index
+                                 # V = compute eigenvalues from a min-max range 
+min eigval            : 
+max eigval            : 
+min index             : 
+max index             : 
 
-num neighbours        : 1
-e_field_z             : 50         # in meV  
-mb                    : 32
-nb                    : 32
+num neighbours        : 
+e_field_z             :          # in meV  
+onsite energy         :          # in meV
+mb                    : 
+nb                    : 
 
-output file name      : bands_1.12_E10.hdf5
-output_file_location  : ./Examples
+output file name      : 
+output_file_location  : 
 ```
 
 Run the code as 
