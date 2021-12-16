@@ -281,7 +281,7 @@ subroutine default_variables()
     no_neigh = 1
     E_field = 0.0
     moire%onsite_en = 0.0
-    output_file_name = 'results.hdf5'
+    output_file_name = 'results'
     output_file_location = './'
 
     return
@@ -376,7 +376,8 @@ subroutine sanitize_input()
         write(err_msg,'(2A)') "\r\n Output file being renamed as ", &
                               trim(adjustl(output_file_name))
         call error_message()
-
+    else
+        write(output_file_name,'(2A)') trim(adjustl(output_file_name)),'.hdf5'
     end if
 
     return

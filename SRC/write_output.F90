@@ -128,7 +128,6 @@ subroutine write_output(k_indx)
 !
 !        do i=1,evec%size_
 !            write(*,'(5I6)') mpi_global%rank, grid%myprow, grid%mypcol, evec_selection_arr(:,i)
-!            call mpi_barrier(mpi_global%comm, mpierr)
 !        end do
 !
 !        deallocate(evec_selection_arr)
