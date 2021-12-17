@@ -66,7 +66,8 @@ subroutine diagonalize_hamiltonian()
     neig = moire%natom
     np0 = numroc(nn, hamiltonian%desca(NB_), 0,0, grid%nprow)
     mq0 = numroc(max(neig, hamiltonian%desca(NB_),2), hamiltonian%desca(NB_), 0,0,grid%npcol)
-    lrwork = max(4*moire%natom + max(5*nn, np0*mq0) + iceil(neig, grid%nprow*grid%npcol)*nn, lrwork)
+    lrwork = max(4*moire%natom + max(5*nn, np0*mq0+2*pzheevx_vars%mb*pzheevx_vars%nb) + &
+                 iceil(neig, grid%nprow*grid%npcol)*nn, lrwork)
 
     ! Find liwork
     ! http://www.netlib.org/scalapack/explore-html/d8/d3b/pzheevx_8f_source.html

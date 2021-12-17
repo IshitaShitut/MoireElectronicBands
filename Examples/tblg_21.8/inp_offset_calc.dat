@@ -22,8 +22,8 @@ compute eigvecs       : yes
 range                 : I         
 min eigval            : -0.400
 max eigval            : 0.400 
-min index             : 10
-max index             : 18
+min index             : 13
+max index             : 16
 
 num neighbours        : 1 
 e_field_z             : 0.0              # in meV  

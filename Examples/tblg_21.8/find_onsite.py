@@ -1,7 +1,7 @@
 import h5py
 import numpy as np
 
-fname = 'bands_0.50_E0-offset.hdf5'
+fname = 'bands_21.8_E0-offset.hdf5'
 nbands = 4 
 no_k_pts = 1
 index_ = [i for i in range(no_k_pts)]

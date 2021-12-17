@@ -4,8 +4,8 @@
 
 
 lammps file location  : /home/mshinjan/MoireElectronicBands/Examples/tblg_0.50
-lammps file name      : lammps_tblg_0.50 
-natom                 : 51484
+lammps file name      : lammps_tblg_0.50
+natom                 : 51484 
 atom types            : 1
 atom style            : molecular
 
@@ -18,7 +18,7 @@ nkpt                  : 1
 num kpools            : 3
 
 
-compute eigvecs       : no
+compute eigvecs       : yes
 range                 : I         
 min eigval            : -0.400
 max eigval            : 0.400 
@@ -26,10 +26,10 @@ min index             : 25741
 max index             : 25744
 
 num neighbours        : 1 
-e_field_z             : 0              # in meV  
-onsite energy         : 0.0            # in meV
+e_field_z             : 0.0              # in meV  
+onsite energy         : 0.0              # in meV
 mb                    : 32
 nb                    : 32
 
-output file name      : bands_0.5_E0-Kpt.hdf5
+output file name      : bands_0.50_E0-offset
 output_file_location  : /home/mshinjan/MoireElectronicBands/Examples/tblg_0.50

@@ -48,7 +48,7 @@ subroutine setup_arrays()
     hamiltonian%lld = numroc(moire%natom, pzheevx_vars%nb, grid%myprow, rsrc, grid%nprow)
     hamiltonian%lld = max(hamiltonian%lld,1)
 
-    hamiltonian%size_ = 1+hamiltonian%locq*hamiltonian%lld
+    hamiltonian%size_ = hamiltonian%locq*hamiltonian%lld+1
 
     call descinit(hamiltonian%desca, moire%natom, moire%natom, pzheevx_vars%mb, &
                   pzheevx_vars%nb, rsrc, csrc, grid%context, hamiltonian%lld, info)
@@ -58,7 +58,7 @@ subroutine setup_arrays()
     evec%lld = numroc(moire%natom, pzheevx_vars%nb, grid%myprow, rsrc, grid%nprow)
     evec%lld = max(evec%lld,1)
 
-    evec%size_ = 1+evec%locq*evec%lld
+    evec%size_ = evec%locq*evec%lld+1
 
     call descinit(evec%desca, moire%natom, moire%natom, pzheevx_vars%mb, &
                   pzheevx_vars%nb, rsrc, csrc, grid%context, evec%lld, info)    

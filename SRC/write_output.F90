@@ -126,10 +126,6 @@ subroutine write_output(k_indx)
 !
 !        call reverse_block_cyclic_dist()
 !
-!        do i=1,evec%size_
-!            write(*,'(5I6)') mpi_global%rank, grid%myprow, grid%mypcol, evec_selection_arr(:,i)
-!        end do
-!
 !        deallocate(evec_selection_arr)
 !
 !!        write(*,*) "Writing eigenvectors"
@@ -176,7 +172,8 @@ subroutine reverse_block_cyclic_dist()
     endif
 
 
-    do jastart = ja_first, evec%desca(N_), grid%npcol*evec%desca(NB_)
+    do jastart = ja_first, pzheevx_vars%comp_num_evec, grid%npcol*evec%desca(NB_)
+!    do jastart = ja_first, evec%desca(N_), grid%npcol*evec%desca(NB_)
         do iastart = ia_first, evec%desca(M_), grid%nprow*evec%desca(MB_)
             iaend = min(evec%desca(M_), iastart+evec%desca(MB_)-1)
             jaend = min(evec%desca(N_), jastart+evec%desca(NB_)-1)
@@ -195,6 +192,8 @@ subroutine reverse_block_cyclic_dist()
                     
                     evec_selection_arr(1,ipos) = ia
                     evec_selection_arr(2,ipos) = ja
+                    
+                    write(*,'(6I10)') mpi_global%rank, grid%myprow, grid%mypcol, ia, ja, ipos
 
                 end do
             end do

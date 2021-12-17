@@ -28,8 +28,8 @@ max index             : 29500
 num neighbours        : 1 
 e_field_z             : 0                   # in meV  
 onsite energy         : 792.60025484        # in meV
-mb                    : 32
-nb                    : 32
+mb                    : 64
+nb                    : 64
 
-output file name      : bands_0.5_E0.hdf5
+output file name      : bands_0.5_E0
 output_file_location  : /home/mshinjan/MoireElectronicBands/Examples/tblg_0.50

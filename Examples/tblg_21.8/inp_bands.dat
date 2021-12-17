@@ -3,14 +3,14 @@
 # -----------------------------------------------------------------
 
 
-lammps file location  : /home/mshinjan/MoireElectronicBands/Examples/tblg_1.61
-lammps file name      : lammps_tblg_1.61
-natom                 : 5044
+lammps file location  : /home/mshinjan/MoireElectronicBands/Examples/tblg_21.8
+lammps file name      : lammps_tblg_21.8
+natom                 : 28
 atom types            : 1
 atom style            : molecular
 
 
-k file location       : /home/mshinjan/MoireElectronicBands/Examples/tblg_1.61
+k file location       : /home/mshinjan/MoireElectronicBands/Examples/tblg_21.8
 k file name           : k_points.dat 
 nkpt                  : 31           
 
@@ -27,9 +27,9 @@ max index             : 2524
 
 num neighbours        : 1 
 e_field_z             : 0.0              # in meV  
-onsite energy         : 788.46406140     # in meV
-mb                    : 32
-nb                    : 32
+onsite energy         : 785.72523027     # in meV
+mb                    : 4
+nb                    : 4
 
-output file name      : bands_1.61_E0.hdf5
-output_file_location  : /home/mshinjan/MoireElectronicBands/Examples/tblg_1.61
+output file name      : bands_21.8_E0
+output_file_location  : /home/mshinjan/MoireElectronicBands/Examples/tblg_21.8
