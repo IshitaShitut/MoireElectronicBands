@@ -14,7 +14,6 @@ subroutine write_output(k_indx)
     ! --------------
 
     integer(4) :: hdf5_error
-    integer(4) :: comm_
     integer(hid_t) :: plist_id, glist_id, dlist_id
     integer(hid_t) :: file_id
     integer(hid_t) :: dset_id
@@ -69,10 +68,8 @@ subroutine write_output(k_indx)
     end if
 
     
-    comm_ = mpi_global%comm
-
     call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, hdf5_error)
-    call h5pset_fapl_mpio_f(plist_id, comm_ , MPI_INFO_NULL, hdf5_error)
+    call h5pset_fapl_mpio_f(plist_id, mpi_global%comm , MPI_INFO_NULL, hdf5_error)
     call h5fopen_f(trim(adjustl(file_name)), H5F_ACC_RDWR_F, file_id, hdf5_error, &
                    access_prp = plist_id)    
 
@@ -108,29 +105,29 @@ subroutine write_output(k_indx)
 
     ! Since the local arrays contain elements distributed in block-cyclic fashion
     ! we have to reverse this distribution and select the coordinates in the 
-    ! global file that correspond to the elements in the  
+    ! global file that correspond to the elements in the distributed array 
 
-!    if (pzheevx_vars%comp_evec=='V') then
-!        call pzlaprnt(moire%natom, pzheevx_vars%comp_num_evec, evec%mat, 1, 1, &
-!                      evec%desca, 0, 0, 'Z', 6, work_prnt) 
-!        dim_evec(1) = moire%natom
-!        dim_evec(2) = pzheevx_vars%comp_num_evec
-!!        call h5screate_simple_f(2, dim_evec, filespace, hdf5_error)
-!!        call h5dcreate_f(group_id, 'eigvec.real', H5T_IEEE_F64LE, filespace, &
-!!                         dset_id, hdf5_error)
-!!        call h5pcreate_f(H5P_DATASET_XFER_F, dlist_id, hdf5_error)
-!!        call h5pset_dxpl_mpio_f(dlist_id, H5D_MPIO_COLLECTIVE_F, hdf5_error)        
-!
-!
-!        allocate(evec_selection_arr(2 , evec%size_)) 
-!
-!        call reverse_block_cyclic_dist()
-!
-!        deallocate(evec_selection_arr)
-!
-!!        write(*,*) "Writing eigenvectors"
-!    end if
-!
+    if (pzheevx_vars%comp_evec=='V') then
+        call pzlaprnt(moire%natom, pzheevx_vars%comp_num_evec, evec%mat, 1, 1, &
+                      evec%desca, 0, 0, 'Z', 6, work_prnt) 
+        dim_evec(1) = moire%natom
+        dim_evec(2) = pzheevx_vars%comp_num_evec
+        call h5screate_simple_f(2, dim_evec, filespace, hdf5_error)
+        call h5dcreate_f(group_id, 'eigvec.real', H5T_IEEE_F64LE, filespace, &
+                         dset_id, hdf5_error)
+        call h5pcreate_f(H5P_DATASET_XFER_F, dlist_id, hdf5_error)
+        call h5pset_dxpl_mpio_f(dlist_id, H5D_MPIO_COLLECTIVE_F, hdf5_error)        
+
+
+        allocate(evec_selection_arr(2 , evec%size_)) 
+
+        call reverse_block_cyclic_dist()
+
+        deallocate(evec_selection_arr)
+
+!        write(*,*) "Writing eigenvectors"
+    end if
+
     call h5gclose_f(group_id,hdf5_error)
     call h5pclose_f(plist_id, hdf5_error)
     call h5fclose_f(file_id, hdf5_error)

@@ -26,10 +26,10 @@ min index             : 25500
 max index             : 29500
 
 num neighbours        : 1 
-e_field_z             : 0                   # in meV  
+e_field_z             : 167.50              # in meV  
 onsite energy         : 792.60025484        # in meV
-mb                    : 64
-nb                    : 64
+mb                    : 40
+nb                    : 40
 
 output file name      : bands_0.5_E0
 output_file_location  : /home/mshinjan/MoireElectronicBands/Examples/tblg_0.50

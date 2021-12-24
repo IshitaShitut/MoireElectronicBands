@@ -11,15 +11,15 @@ atom style            : molecular
 
 
 k file location       : /home/mshinjan/MoireElectronicBands/Examples/tblg_1.12
-k file name           : k_points_K.dat 
-nkpt                  : 1           
+k file name           : k_points.dat 
+nkpt                  : 31           
 
 
 num kpools            : 3
 
 
 compute eigvecs       : no
-range                 : I         
+range                 : A         
 min eigval            : -0.400
 max eigval            : 0.400 
 min index             : 5221
@@ -27,9 +27,9 @@ max index             : 5224
 
 num neighbours        : 1 
 e_field_z             : 0.0              # in meV  
-onsite energy         : 0.0              # in meV
+onsite energy         : 790.49439577     # in meV
 mb                    : 32
 nb                    : 32
 
-output file name      : bands_1.12_E0-offset
+output file name      : bands_1.12_E0
 output_file_location  : /home/mshinjan/MoireElectronicBands/Examples/tblg_1.12

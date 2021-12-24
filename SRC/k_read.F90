@@ -3,9 +3,10 @@ subroutine read_k_file()
     implicit none
     integer :: i, error
     character(len=char_len) :: file_name_ , temp
-
-#ifdef __KPOOL
+#ifdef __DEBUG
     integer :: j
+#endif
+#ifdef __KPOOL
 
     call distribution_length(k_file%npt, mpi_local%color-1, num_pools, &
                              k_file%start, k_file%finish)
