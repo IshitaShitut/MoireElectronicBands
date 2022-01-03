@@ -18,12 +18,15 @@ subroutine write_output(k_indx)
     integer(hid_t) :: file_id
     integer(hid_t) :: dset_id
     integer(hid_t) :: group_id
-    integer(hid_t) :: filespace
-    integer(hsize_t), dimension(1) :: dim_eval, dim_k
+    integer(hid_t) :: filespace, memspace, dataspace_id
+    integer(hsize_t), dimension(1) :: dim_eval, dim_k, dim_mem
     integer(hsize_t), dimension(2) :: dim_evec
+    integer(size_t) :: local_num_ele
 
    
     double complex :: work_prnt(10000)
+    external :: numroc
+    integer :: numroc, local_rows, local_cols
     integer :: i
 
 
@@ -107,25 +110,54 @@ subroutine write_output(k_indx)
     ! we have to reverse this distribution and select the coordinates in the 
     ! global file that correspond to the elements in the distributed array 
 
+
     if (pzheevx_vars%comp_evec=='V') then
-        call pzlaprnt(moire%natom, pzheevx_vars%comp_num_evec, evec%mat, 1, 1, &
-                      evec%desca, 0, 0, 'Z', 6, work_prnt) 
         dim_evec(1) = moire%natom
         dim_evec(2) = pzheevx_vars%comp_num_evec
-        call h5screate_simple_f(2, dim_evec, filespace, hdf5_error)
-        call h5dcreate_f(group_id, 'eigvec.real', H5T_IEEE_F64LE, filespace, &
-                         dset_id, hdf5_error)
-        call h5pcreate_f(H5P_DATASET_XFER_F, dlist_id, hdf5_error)
-        call h5pset_dxpl_mpio_f(dlist_id, H5D_MPIO_COLLECTIVE_F, hdf5_error)        
+        local_rows = numroc(moire%natom,pzheevx_vars%mb,grid%myprow,0,grid%nprow)
+        local_cols = numroc(pzheevx_vars%comp_num_evec,pzheevx_vars%nb,grid%mypcol,0,grid%npcol)
+        local_num_ele = local_rows*local_cols
 
-
-        allocate(evec_selection_arr(2 , evec%size_)) 
-
+        dim_mem(1) = local_num_ele
+        
+        allocate(evec_selection_arr(2,local_num_ele))
         call reverse_block_cyclic_dist()
+        
+        
+        call h5screate_simple_f(2, dim_evec, dataspace_id, hdf5_error)
+        call h5dcreate_f(group_id,'evec_real',H5T_IEEE_F64LE,dataspace_id,dset_id,hdf5_error)
+        
+        if (local_num_ele.gt.0) then
+            call h5screate_simple_f(1, dim_mem, memspace, hdf5_error)
+            call h5sselect_elements_f(dataspace_id, H5S_SELECT_SET_F,2,local_num_ele, & 
+                                      evec_selection_arr, hdf5_error)
+            call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, real(evec%mat(1:local_num_ele)), &
+                            dim_evec, hdf5_error, mem_space_id=memspace, &
+                            file_space_id=dataspace_id)
+            call h5sclose_f(memspace, hdf5_error)
+        end if
+        call h5dclose_f(dset_id, hdf5_error)
+        call h5sclose_f(dataspace_id, hdf5_error)
+
+        call h5screate_simple_f(2, dim_evec, dataspace_id, hdf5_error)
+        call h5dcreate_f(group_id,'evec_imag',H5T_IEEE_F64LE,dataspace_id,dset_id,hdf5_error)
+
+        if (local_num_ele.gt.0) then
+            call h5screate_simple_f(1, dim_mem, memspace, hdf5_error)
+            call h5sselect_elements_f(dataspace_id, H5S_SELECT_SET_F,2,local_num_ele, &
+                                      evec_selection_arr, hdf5_error)
+            call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, aimag(evec%mat(1:local_num_ele)), &
+                            dim_evec, hdf5_error, mem_space_id=memspace, &
+                            file_space_id=dataspace_id)
+            call h5sclose_f(memspace, hdf5_error)
+        end if
+
+
 
         deallocate(evec_selection_arr)
+        call h5dclose_f(dset_id, hdf5_error)
+        call h5sclose_f(dataspace_id, hdf5_error)
 
-!        write(*,*) "Writing eigenvectors"
     end if
 
     call h5gclose_f(group_id,hdf5_error)
@@ -145,22 +177,17 @@ end subroutine
 subroutine reverse_block_cyclic_dist()
 
     use global_variables
-
     implicit none
-
     integer :: ia_first, ja_first, iastart, jastart, iaend, jaend , rsrc, csrc
     integer :: lroffset, lcoffset, ia, ja, lrindx, lcindx, ipos
-
     rsrc = 0
     csrc = 0
-
     if (grid%myprow.ge.evec%desca(RSRC_)) then
         ia_first = (grid%myprow - evec%desca(RSRC_))*evec%desca(MB_)+1
     else
         ia_first = (grid%myprow + (grid%nprow - evec%desca(RSRC_)))* &
                     evec%desca(MB_) + 1
     endif
-
     if (grid%mypcol.ge.evec%desca(CSRC_)) then
         ja_first = (grid%mypcol - evec%desca(CSRC_))*evec%desca(NB_)+1
     else
@@ -168,36 +195,25 @@ subroutine reverse_block_cyclic_dist()
                     evec%desca(NB_) + 1
     endif
 
-
     do jastart = ja_first, pzheevx_vars%comp_num_evec, grid%npcol*evec%desca(NB_)
-!    do jastart = ja_first, evec%desca(N_), grid%npcol*evec%desca(NB_)
         do iastart = ia_first, evec%desca(M_), grid%nprow*evec%desca(MB_)
             iaend = min(evec%desca(M_), iastart+evec%desca(MB_)-1)
             jaend = min(evec%desca(N_), jastart+evec%desca(NB_)-1)
-
             ia = iastart
             ja = jastart
-
             call infog2l (ia, ja, evec%desca, grid%nprow, grid%npcol, &
                           grid%myprow, grid%mypcol, lroffset, lcoffset, rsrc, csrc)
-
             do ja=jastart,jaend
                 do ia=iastart,iaend
                     lrindx = lroffset + (ia-iastart)
                     lcindx = lcoffset + (ja-jastart)
                     ipos = lrindx + (lcindx-1)*evec%desca(LLD_)
-                    
                     evec_selection_arr(1,ipos) = ia
                     evec_selection_arr(2,ipos) = ja
-                    
-                    write(*,'(6I10)') mpi_global%rank, grid%myprow, grid%mypcol, ia, ja, ipos
-
                 end do
             end do
-
         end do
     end do
-    
+    call mpi_barrier(mpi_global%comm, mpierr)
     return
-
 end subroutine

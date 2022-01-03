@@ -1,0 +1,35 @@
+# -----------------------------------------------------------------
+# Input file for electronic Band Structure Calculations in Moire
+# -----------------------------------------------------------------
+
+
+lammps file location  : ./ #home/mshinjan/MoireElectronicBands/Examples/tblg_1.61
+lammps file name      : lammps.dat_final_AB_replicate
+natom                 : 5044
+atom types            : 1
+atom style            : molecular
+
+
+k file location       : ./ #home/mshinjan/MoireElectronicBands/Examples/tblg_1.61
+k file name           : k_points.dat 
+nkpt                  : 31           
+
+
+num kpools            : 3
+
+
+compute eigvecs       : no
+range                 : A         
+min eigval            : -0.400
+max eigval            : 0.400 
+min index             : 2521
+max index             : 2524
+
+num neighbours        : 1 
+e_field_z             : 0.0              # in meV  
+onsite energy         : 787.68019937     # in meV
+mb                    : 32
+nb                    : 32
+
+output file name      : bands_1.61_E0
+output_file_location  : ./ #home/mshinjan/MoireElectronicBands/Examples/tblg_1.61

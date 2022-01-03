@@ -4,7 +4,9 @@ subroutine diagonalize_and_write()
     implicit none  
     
     integer :: k_loc, allstat    
-    
+    external :: numroc
+    integer :: numroc, local_rows, local_cols, local_num_ele
+
     call setup_arrays()
 
     allocate(hamiltonian%mat(hamiltonian%size_),stat=allstat)
@@ -48,7 +50,7 @@ subroutine setup_arrays()
     hamiltonian%lld = numroc(moire%natom, pzheevx_vars%nb, grid%myprow, rsrc, grid%nprow)
     hamiltonian%lld = max(hamiltonian%lld,1)
 
-    hamiltonian%size_ = hamiltonian%locq*hamiltonian%lld+1
+    hamiltonian%size_ = hamiltonian%locq*hamiltonian%lld
 
     call descinit(hamiltonian%desca, moire%natom, moire%natom, pzheevx_vars%mb, &
                   pzheevx_vars%nb, rsrc, csrc, grid%context, hamiltonian%lld, info)
@@ -58,7 +60,7 @@ subroutine setup_arrays()
     evec%lld = numroc(moire%natom, pzheevx_vars%nb, grid%myprow, rsrc, grid%nprow)
     evec%lld = max(evec%lld,1)
 
-    evec%size_ = evec%locq*evec%lld+1
+    evec%size_ = evec%locq*evec%lld
 
     call descinit(evec%desca, moire%natom, moire%natom, pzheevx_vars%mb, &
                   pzheevx_vars%nb, rsrc, csrc, grid%context, evec%lld, info)    

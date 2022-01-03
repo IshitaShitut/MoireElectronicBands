@@ -10,8 +10,8 @@ subroutine diagonalize_hamiltonian()
     double complex, allocatable, dimension(:) :: work
     integer, allocatable, dimension(:) :: iwork, ifail, iclustr
     integer :: lwork, liwork, lrwork, lgap, lifail, liclustr, info
-    integer, parameter :: abstol = -1
-    integer, parameter :: orfac = -1
+    double precision, parameter :: abstol = 1E-15
+    double precision, parameter :: orfac = 1E-15
     integer :: anb, sqnpc, nps, nhetrd_lwork
     integer, external :: numroc, iceil, pjlaenv
     integer :: nn, neig, np0, mq0
