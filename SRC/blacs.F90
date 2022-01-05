@@ -4,8 +4,9 @@ subroutine blacs_grid_initialization()
     use mpi
 
     implicit none
+#ifdef __DEBUG
     integer :: i
-
+#endif
 #ifdef __KPOOL
     integer, allocatable, dimension(:,:) :: map, dim_
     integer, allocatable, dimension(:) :: icontxts

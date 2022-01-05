@@ -24,21 +24,19 @@ subroutine write_output(k_indx)
     integer :: local_num_ele
 
     integer :: ia_first, ja_first, iastart, jastart, iaend, jaend, ia, ja
-    integer :: lrindx, lcindx, lroffset, lcoffset
+    integer :: lrindx, lcindx, lroffset, lcoffset, rsrc, csrc
     integer(hsize_t), dimension(1) :: ipos
-    integer(hsize_t), dimension(1,2) :: coord
+    integer(hsize_t), dimension(2,1) :: coord
     integer(size_t), parameter :: ONE_ = 1
 
     logical :: proc_should_write
 
     integer(4) :: comm_
    
-    external :: numroc
-    integer :: numroc, local_rows, local_cols, selected_points
-    integer(size_t) :: num_points_to_write
-    integer :: i
+    integer, external :: numroc
 
     double precision, allocatable, dimension(:) :: temp
+
 
     ! open hdf5 interface
     ! -------------------
@@ -124,6 +122,10 @@ subroutine write_output(k_indx)
 
 
     if (pzheevx_vars%comp_evec=='V') then
+        
+        rsrc = 0
+        csrc = 0
+
         dim_evec(1) = moire%natom
         dim_evec(2) = pzheevx_vars%comp_num_evec
 
@@ -154,23 +156,18 @@ subroutine write_output(k_indx)
 
         if (proc_should_write) then
 
-            local_rows = numroc(moire%natom,pzheevx_vars%mb,grid%myprow,0,grid%nprow)
-            local_cols = numroc(moire%natom,pzheevx_vars%nb,grid%mypcol,0,grid%npcol)
-            local_num_ele = local_rows*local_cols
-            dim_mem(1) = local_num_ele
+            dim_mem(1) = evec%size_
             call h5screate_simple_f(1, dim_mem, memspace, hdf5_error)
-
-            num_points_to_write = 0
 
             do jastart = ja_first, pzheevx_vars%comp_num_evec, grid%npcol*evec%desca(NB_)
                 do iastart = ia_first, evec%desca(M_), grid%nprow*evec%desca(MB_)
                     iaend = min(evec%desca(M_), iastart+evec%desca(MB_)-1)
-                    jaend = min(pzheevx_vars%comp_num_evec, jastart+evec%desca(NB_)-1)
+                    jaend = min(evec%desca(N_), jastart+evec%desca(NB_)-1)
                     ia = iastart
                     ja = jastart
                     call infog2l (ia, ja, evec%desca, grid%nprow, grid%npcol, &
                                   grid%myprow, grid%mypcol, lroffset, lcoffset, &
-                                  evec%desca(RSRC_), evec%desca(CSRC_))
+                                  rsrc, csrc)
                     do ja=jastart,jaend
                         do ia=iastart,iaend
                             lrindx = lroffset + (ia-iastart)
@@ -178,38 +175,31 @@ subroutine write_output(k_indx)
                             ipos(1) = lrindx + (lcindx-1)*evec%desca(LLD_)
                             
                             coord(1,1) = ia
-                            coord(1,2) = ja
+                            coord(2,1) = ja
+                            
+                            if (ja.le.pzheevx_vars%comp_num_evec) then
+                                call h5sselect_elements_f(memspace, H5S_SELECT_APPEND_F, 1, &
+                                     ONE_, ipos, hdf5_error) 
 
-                            call h5sselect_elements_f(memspace, H5S_SELECT_APPEND_F, 1, &
-                                 ONE_, ipos, hdf5_error) 
-
-                            call h5sselect_elements_f(dataspace_id, H5S_SELECT_APPEND_F, 2, &
-                                 ONE_, coord, hdf5_error)  
-                            call h5sselect_elements_f(dataspace_id2, H5S_SELECT_APPEND_F, 2, &
-                                 ONE_, coord, hdf5_error)
-                            num_points_to_write = num_points_to_write + 1
+                                call h5sselect_elements_f(dataspace_id,H5S_SELECT_APPEND_F,2,&
+                                     ONE_, coord, hdf5_error)  
+                                call h5sselect_elements_f(dataspace_id2,H5S_SELECT_APPEND_F,2, &
+                                    ONE_, coord, hdf5_error)
+                            end if
                         end do
                     end do
                 end do
             end do
 
-            call h5sget_select_elem_npoints_f(memspace, selected_points,hdf5_error)
-            write(*,*) "Selected points in memory: ", selected_points, mpi_global%rank
-            call h5sget_select_elem_npoints_f(dataspace_id, selected_points,hdf5_error)
-            write(*,*) "Selected points in dataset: ", selected_points, mpi_global%rank
             allocate(temp(local_num_ele))
-            do i=1,local_num_ele
-                temp(i) = real(evec%mat(i))
-            end do
-            call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, temp, &
+            temp = real(evec%mat)
+            call h5dwrite_f(dset_id, H5T_IEEE_F64LE, temp, &
                             dim_evec, hdf5_error, mem_space_id = &
                             memspace, file_space_id = dataspace_id) 
-            do i=1,local_num_ele
-                temp(i) = aimag(evec%mat(i))
-            end do
-            call h5dwrite_f(dset_id2, H5T_NATIVE_DOUBLE, temp, &
+            temp = aimag(evec%mat)
+            call h5dwrite_f(dset_id2, H5T_IEEE_F64LE, temp, &
                             dim_evec, hdf5_error, mem_space_id = &
-                            memspace, file_space_id = dataspace_id2) 
+                            memspace, file_space_id = dataspace_id2)  
             deallocate(temp)
             call h5pclose_f(dlist_id, hdf5_error)
             call h5sclose_f(memspace,hdf5_error)
@@ -227,6 +217,9 @@ subroutine write_output(k_indx)
     call h5fclose_f(file_id, hdf5_error)
 
     call mpi_barrier(mpi_global%comm, mpierr)
+    write(done_line,"(I0,3A)") pzheevx_vars%comp_num_evec, " eigenvectors written to ", &
+                              trim(adjustl(file_name)), " on "
+    call date_time_message(trim(done_line))
     
     return
 

@@ -4,8 +4,8 @@ subroutine diagonalize_and_write()
     implicit none  
     
     integer :: k_loc, allstat    
-    external :: numroc
-    integer :: numroc, local_rows, local_cols, local_num_ele
+!    external :: numroc
+!    integer :: numroc, local_rows, local_cols, local_num_ele
 
     call setup_arrays()
 
