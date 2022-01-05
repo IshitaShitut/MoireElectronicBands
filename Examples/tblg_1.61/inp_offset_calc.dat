@@ -18,7 +18,7 @@ nkpt                  : 1
 num kpools            : 3
 
 
-compute eigvecs       : no
+compute eigvecs       : yes
 range                 : I         
 min eigval            : -0.400
 max eigval            : 0.400 
@@ -31,5 +31,5 @@ onsite energy         : 0.0              # in meV
 mb                    : 32
 nb                    : 32
 
-output file name      : bands_1.61_E0-Kpt.hdf5
+output file name      : bands_1.61_E0-Kpt
 output_file_location  : /home/mshinjan/MoireElectronicBands/Examples/tblg_1.61

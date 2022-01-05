@@ -15,7 +15,7 @@ LAPACK_LIBS = ${MKLROOT}/lib/intel64/libmkl_lapack95_ilp64.a
 SCALAPACK_LIBS = -L${MKLROOT}/lib/intel64 -lmkl_scalapack_ilp64 -lmkl_intel_ilp64 -lmkl_intel_thread -lmkl_core -lmkl_blacs_intelmpi_ilp64 -liomp5 -lpthread -lm -ldl 
 
 FLFLAGS = ${BLAS_LIBS} ${LAPACK_LIBS} ${SCALAPACK_LIBS}
-FCFLAGS = -O3 -g -traceback -ip -assume bscc -I${MKLROOT}/include/intel64/ilp64 -i8 -I${MKLROOT}/include -fPIC -qopenmp -Winline  
+FCFLAGS = -O3 -g -traceback -ip -assume bscc -I${MKLROOT}/include/intel64/ilp64 -i8 -I${MKLROOT}/include -fPIC -Winline  
 
 CPP = cpp -P 
 CPPFLAGS = #-D__DEBUG #-D__KPOOL -D__DEBUG
