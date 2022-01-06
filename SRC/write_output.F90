@@ -28,7 +28,7 @@ subroutine write_output(k_indx)
     integer(hsize_t), dimension(2,1) :: coord
     integer(size_t), parameter :: ONE_ = 1
 
-    logical :: proc_should_write
+    integer :: proc_should_write
 
     integer(4) :: comm_
    
@@ -36,6 +36,8 @@ subroutine write_output(k_indx)
 
     double precision, allocatable, dimension(:) :: temp
 
+    integer :: i, j, num_proc_writer, world_group
+    integer, allocatable, dimension(:) :: writer_id, temp_storage
 
     ! open hdf5 interface
     ! -------------------
@@ -53,7 +55,7 @@ subroutine write_output(k_indx)
 
     inquire(file=file_name, exist=file_exists)
        
-    write(group_name,'(I10)') k_indx 
+    write(group_name,'(I12.12)') k_indx 
 
     if (file_exists) then
         if (mpi_global%rank == 0) then
@@ -118,6 +120,10 @@ subroutine write_output(k_indx)
     ! Since the local arrays contain elements distributed in block-cyclic fashion
     ! we have to reverse this distribution and select the coordinates in the 
     ! global file that correspond to the elements in the distributed array 
+    ! 
+    ! If j eigenvectors are computed, only the first j columns of the distributed
+    ! matrix store the eigenvectors.
+    ! The processes containing the relevant columns writes them out to the file.
 
 
     if (pzheevx_vars%comp_evec=='V') then
@@ -141,23 +147,24 @@ subroutine write_output(k_indx)
                       evec%desca(NB_) +1
         endif
 
-        proc_should_write = .false.
+        proc_should_write = 0
 
         if (ja_first.le.pzheevx_vars%comp_num_evec) then
-            proc_should_write = .true.
+            proc_should_write = 1
         end if
-        call h5pcreate_f(H5P_DATASET_XFER_F, dlist_id, hdf5_error)
-        call h5pset_dxpl_mpio_f(dlist_id, H5FD_MPIO_COLLECTIVE_F, hdf5_error)
+        
         call h5screate_simple_f(2, dim_evec, dataspace_id, hdf5_error)
-        call h5dcreate_f(group_id, 'evec_real', H5T_IEEE_F64LE, dataspace_id, dset_id, hdf5_error)
+        call h5dcreate_f(group_id,'evec_real',H5T_IEEE_F64LE,dataspace_id,dset_id,hdf5_error)
         call h5screate_simple_f(2, dim_evec, dataspace_id2, hdf5_error)
-        call h5dcreate_f(group_id, 'evec_imag', H5T_IEEE_F64LE, dataspace_id2, dset_id2, hdf5_error)
+        call h5dcreate_f(group_id,'evec_imag',H5T_IEEE_F64LE,dataspace_id2,dset_id2,hdf5_error)
 
-        if (proc_should_write) then
+        if (proc_should_write==1) then
+            call h5pcreate_f(H5P_DATASET_XFER_F, dlist_id, hdf5_error)
+            call h5pset_dxpl_mpio_f(dlist_id, H5FD_MPIO_INDEPENDENT_F, hdf5_error)
 
             dim_mem(1) = evec%size_
             call h5screate_simple_f(1, dim_mem, memspace, hdf5_error)
-
+            
             do jastart = ja_first, pzheevx_vars%comp_num_evec, grid%npcol*evec%desca(NB_)
                 do iastart = ia_first, evec%desca(M_), grid%nprow*evec%desca(MB_)
                     iaend = min(evec%desca(M_), iastart+evec%desca(MB_)-1)
@@ -189,26 +196,29 @@ subroutine write_output(k_indx)
                     end do
                 end do
             end do
-
+            
             allocate(temp(evec%size_))
             temp = real(evec%mat)
             call h5dwrite_f(dset_id, H5T_IEEE_F64LE, temp, &
                             dim_evec, hdf5_error, mem_space_id = &
-                            memspace, file_space_id = dataspace_id) 
+                            memspace, file_space_id = dataspace_id, xfer_prp=dlist_id) 
             temp = aimag(evec%mat)
             call h5dwrite_f(dset_id2, H5T_IEEE_F64LE, temp, &
                             dim_evec, hdf5_error, mem_space_id = &
-                            memspace, file_space_id = dataspace_id2)  
+                            memspace, file_space_id = dataspace_id2, xfer_prp=dlist_id)  
             deallocate(temp)
             call h5pclose_f(dlist_id, hdf5_error)
             call h5sclose_f(memspace,hdf5_error)
         end if
+        call h5dclose_f(dset_id, hdf5_error)
+        call h5sclose_f(dataspace_id, hdf5_error)
+        call h5dclose_f(dset_id2, hdf5_error)
+        call h5sclose_f(dataspace_id2, hdf5_error)
+        write(done_line,"(I0,3A)") pzheevx_vars%comp_num_evec, " eigenvectors written to ", &
+                                      trim(adjustl(file_name)), " on "
+        call date_time_message(trim(done_line))
     end if
     
-    call h5dclose_f(dset_id, hdf5_error)
-    call h5sclose_f(dataspace_id, hdf5_error)
-    call h5dclose_f(dset_id2, hdf5_error)
-    call h5sclose_f(dataspace_id2, hdf5_error)
 
     call h5gclose_f(group_id,hdf5_error)
     call h5pclose_f(glist_id, hdf5_error)
@@ -216,9 +226,7 @@ subroutine write_output(k_indx)
     call h5fclose_f(file_id, hdf5_error)
 
     call mpi_barrier(mpi_global%comm, mpierr)
-    write(done_line,"(I0,3A)") pzheevx_vars%comp_num_evec, " eigenvectors written to ", &
-                              trim(adjustl(file_name)), " on "
-    call date_time_message(trim(done_line))
+
     
     return
 

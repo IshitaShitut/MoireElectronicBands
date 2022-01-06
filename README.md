@@ -9,7 +9,7 @@ The prerequisites to run this code are:
 
 >
 > Parallel HDF5 (checked for v1.12.0.0 and v1.12.1)  
-> Scalapack (checked with Intel MKL)
+> Scalapack (checked with Intel MKL, AMD Scalapack)
 >
 
 
@@ -21,7 +21,6 @@ make -f Makefile.<dist> (supported dists = Intel MKL, AOCL)
 ```
 
 While compilation the user can turn on the `-D__DEBUG` flag to get certain debugging informations.  
-K-pools are not supported yet.
 
 
 A sample input file would look like this:
@@ -35,38 +34,54 @@ A sample input file would look like this:
 lammps file location  : 
 lammps file name      :
 natom                 : 
-atom types            : 
-atom style            :
+atom types            : 	     
+atom style            :		     # LAMMPS atom style used in the data file
+				     # Supported styles are: atomic and molecular
 
 
 k file location       : 
 k file name           : 
-nkpt                  : 
+nkpt                  :		     # Number of k points 
 
 
-num kpools            : 
+num kpools            : 	     # Number of k-pools --- Not implemented in v1.0
 
 
-compute eigvecs       : yes/no
-range                 : A/I/V    # A = compute all evals
-                                 # I = compute eigenvalues from min index to max index
-                                 # V = compute eigenvalues from a min-max range 
-min eigval            : 
-max eigval            : 
-min index             : 
-max index             : 
+compute eigvecs       : < yes/no >
+range                 : < A/I/V >    # A = compute all evals
+                                     # I = compute eigenvalues from min index to max index
+                                     # V = compute eigenvalues from a min-max range 
 
-num neighbours        : 
-e_field_z             :          # in meV  
-onsite energy         :          # in meV
-mb                    : 
-nb                    : 
+min eigval            :              # minimum value of the eigenvalue to be found
+				     # Ignored if compute eigvecs = A/I 
+max eigval            :		     # maximum value of the eigenvalue to be found 
+				     # Ignored if compute eigvecs = A/I 
+min index             :		     # lowest index of the eigenvalue to be found
+			             # Ignored if compute eigvecs = A/V  
+max index             : 	     # highest index of the eigenvalue to be found 
+				     # Ignored if compute eigvecs = A/V
+
+mb                    :              # (mb, nb) are the block sizes for block cyclic
+nb                    : 	     # distribution of the matrix. 
+
+abstol		      :		     # Tolerance for eigenvalue convergence
+orfac		      :	             # Tolerance for eigenvector orthogonalization
+
+
+num neighbours        : 	     # Number of neigbouring cells to scan for convergence
+e field z             :              # in meV  
+onsite energy         :              # in meV
 
 output file name      : 
-output_file_location  : 
+output file location  : 
 ```
 
 Run the code as 
 ```
 mpiexec -np <no. of cores> <path to executable> <path to input file> 
 ```
+
+## Known Issues
+
+K-pools are not supported yet. Will be supported in v2.0
+

@@ -3,14 +3,14 @@
 # -----------------------------------------------------------------
 
 
-lammps file location  : /home/mshinjan/MoireElectronicBands/Examples/tblg_0.50
+lammps file location  : ./
 lammps file name      : lammps_tblg_0.50 
 natom                 : 51484
 atom types            : 1
 atom style            : molecular
 
 
-k file location       : /home/mshinjan/MoireElectronicBands/Examples/tblg_0.50
+k file location       : ./ 
 k file name           : k_points.dat 
 nkpt                  : 31           
 
@@ -31,5 +31,5 @@ onsite energy         : 792.60025484        # in meV
 mb                    : 40
 nb                    : 40
 
-output file name      : bands_0.5_E0
-output_file_location  : /home/mshinjan/MoireElectronicBands/Examples/tblg_0.50
+output file name      : bands_0.5_E167.50
+output_file_location  : ./ 

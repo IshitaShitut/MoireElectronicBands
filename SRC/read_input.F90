@@ -135,6 +135,10 @@ subroutine read_input()
                     read(args_(2), *) pzheevx_vars%iu
                 case ("MIN_INDEX", "MIN INDEX")
                     read(args_(2), *) pzheevx_vars%il
+                case ("ABSTOL")
+                    read(args_(2), *) pzheevx_vars%abstol
+                case ("ORFAC")
+                    read(args_(2), *) pzheevx_vars%orfac 
                 case ("NUM NEIGHBOURS", "NUM_NEIGHBOURS")
                     read(args_(2), *) no_neigh
                 case ("E FIELD Z", "E_FIELD_Z")
@@ -212,6 +216,10 @@ subroutine read_input()
     write(debug_str, '(2(A,I0),A)') "Block size for scalapack diagonalization : (", &
                                      pzheevx_vars%mb,',',pzheevx_vars%nb,')'
     call debug_output(0)
+    write(debug_str, '(A,E12.4)') "Abstol : ", pzheevx_vars%abstol
+    call debug_output(0)
+    write(debug_str, '(A,E12.4)') "Orfac : ", pzheevx_vars%orfac
+    call debug_output(0)
     write(debug_str, '(A,I0)') "Number of neighbour cells in each direction to scan : ", &
                                  no_neigh
     call debug_output(0)
@@ -278,6 +286,8 @@ subroutine default_variables()
     pzheevx_vars%vu = 0.0
     pzheevx_vars%mb = -1
     pzheevx_vars%nb = -1
+    pzheevx_vars%abstol= 1E-15
+    pzheevx_vars%orfac = 1E-15
     no_neigh = 1
     E_field = 0.0
     moire%onsite_en = 0.0

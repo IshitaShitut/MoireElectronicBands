@@ -30,7 +30,7 @@ module global_variables
 
     type scalapack_variables
         integer  :: mb, nb, il, iu, comp_num_eval, comp_num_evec
-        double precision :: vl, vu
+        double precision :: vl, vu, abstol, orfac
         character(1) :: range_, comp_evec
     end type scalapack_variables
 

@@ -71,14 +71,12 @@ subroutine create_hamiltonian(k_indx)
         call mpi_barrier(mpi_global%comm, mpierr)
     end do
     call mpi_barrier(mpi_global%comm, mpierr)
-
 #endif
 
 
 
 #ifdef __KPOOL    
     call mpi_barrier(mpi_local%comm, mpierr)
-
     write(debug_str,'(A,I0,A)') "Hamiltonian created for k-pt no.", k_indx ," on "
 
     call date_time_message_local(trim(debug_str))

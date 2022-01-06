@@ -10,17 +10,19 @@ EXE = moire_bands.x
 
 FC = h5pfc
 
-BLAS_LIBS = -L${AMDBLIS_ROOT}/lib -lblis-mt
-LAPACK_LIBS = -L${AMDLIBFLAME_ROOT}/lib -lflame
-SCALAPACK_LIBS = -L${AMDSCALAPACK_ROOT}/lib -lscalapack 
+AMDBLIS_ROOT = /home/mshinjan/Programs/aocl/Installation/3.0-6/lib
+AMDLIBFLAME_ROOT = /home/mshinjan/Programs/aocl/Installation/3.0-6/lib
+AMDSCALAPACK_ROOT = /home/mshinjan/Programs/aocl/scalapack/build/lib/libscalapack.so
 
-#BLAS_LIBS = 
-#LAPACK_LIBS = -L${OPENBLAS_ROOT}/lib -lopenblas 
-#SCALAPACK_LIBS = -L${NETLIB_SCALAPACK_ROOT}/lib -lscalapack
+
+BLAS_LIBS = -L${AMDBLIS_ROOT} -lblis
+LAPACK_LIBS = -L${AMDLIBFLAME_ROOT} -lflame
+SCALAPACK_LIBS = ${AMDSCALAPACK_ROOT}
+
 
 FLFLAGS = ${BLAS_LIBS} ${LAPACK_LIBS} ${SCALAPACK_LIBS}
 
-FCFLAGS = -O3 -I$(SRC_DIR) -DENABLE_LOOK_AHEAD_FOR_LU -fPIC
+FCFLAGS = -O3 -I$(SRC_DIR) -fPIC -DENABLE_LOOK_AHEAD_FOR_LU -march=znver2  
 
 CPP = cpp -P -DF2C 
 CPPFLAGS = #-D__DEBUG #-D__KPOOL
