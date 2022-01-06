@@ -36,9 +36,6 @@ subroutine write_output(k_indx)
 
     double precision, allocatable, dimension(:) :: temp
 
-    integer :: i, j, num_proc_writer, world_group
-    integer, allocatable, dimension(:) :: writer_id, temp_storage
-
     ! open hdf5 interface
     ! -------------------
 
@@ -184,12 +181,11 @@ subroutine write_output(k_indx)
                             coord(2,1) = ja
                             
                             if (ja.le.pzheevx_vars%comp_num_evec) then
-                                call h5sselect_elements_f(memspace, H5S_SELECT_APPEND_F, 1, &
-                                     ONE_, ipos, hdf5_error) 
-
-                                call h5sselect_elements_f(dataspace_id,H5S_SELECT_APPEND_F,2,&
-                                     ONE_, coord, hdf5_error)  
-                                call h5sselect_elements_f(dataspace_id2,H5S_SELECT_APPEND_F,2, &
+                             call h5sselect_elements_f(memspace, H5S_SELECT_APPEND_F, 1, &
+                                    ONE_, ipos, hdf5_error) 
+                             call h5sselect_elements_f(dataspace_id,H5S_SELECT_APPEND_F,2,&
+                                    ONE_, coord, hdf5_error)  
+                             call h5sselect_elements_f(dataspace_id2,H5S_SELECT_APPEND_F,2, &
                                     ONE_, coord, hdf5_error)
                             end if
                         end do
