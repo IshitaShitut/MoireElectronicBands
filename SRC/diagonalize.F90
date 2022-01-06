@@ -40,12 +40,6 @@ subroutine diagonalize_hamiltonian()
     pzheevx_vars%comp_num_evec, eval, orfac, evec%mat, 1, 1, evec%desca, work, &
     lwork, rwork, lrwork, iwork, liwork, ifail, iclustr, gap, info)
 
-!    call pzheevr(pzheevx_vars%comp_evec, pzheevx_vars%range_, 'U', moire%natom, &
-!    hamiltonian%mat, ia, ja, hamiltonian%desca, pzheevx_vars%vl, pzheevx_vars%vu, &
-!    pzheevx_vars%il, pzheevx_vars%iu, pzheevx_vars%comp_num_eval,  &
-!    pzheevx_vars%comp_num_evec, eval, evec%mat, 1, 1, evec%desca, work, lwork, &
-!    rwork, lrwork, iwork, liwork, info)
-
     ! Find lwork 
     ! http://www.netlib.org/scalapack/explore-html/d8/d3b/pzheevx_8f_source.html
     ! ----------
@@ -89,12 +83,6 @@ subroutine diagonalize_hamiltonian()
     pzheevx_vars%comp_num_evec, eval ,orfac, evec%mat, 1, 1, evec%desca, work,    &
     lwork, rwork, lrwork, iwork, liwork, ifail, iclustr, gap, info)
     
-!    call pzheevr(pzheevx_vars%comp_evec, pzheevx_vars%range_, 'U', moire%natom, &
-!    hamiltonian%mat, ia, ja, hamiltonian%desca, pzheevx_vars%vl, pzheevx_vars%vu, &
-!    pzheevx_vars%il, pzheevx_vars%iu, pzheevx_vars%comp_num_eval,  &
-!    pzheevx_vars%comp_num_evec, eval, evec%mat, 1, 1, evec%desca, work, lwork, &
-!    rwork, lrwork, iwork, liwork, info)
-
 
     if (info.gt.0) then
         if (mod(info,2).ne.0) then

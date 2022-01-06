@@ -21,7 +21,6 @@ subroutine write_output(k_indx)
     integer(hid_t) :: filespace, memspace, dataspace_id, dataspace_id2
     integer(hsize_t), dimension(1) :: dim_eval, dim_k, dim_mem
     integer(hsize_t), dimension(2) :: dim_evec
-    integer :: local_num_ele
 
     integer :: ia_first, ja_first, iastart, jastart, iaend, jaend, ia, ja
     integer :: lrindx, lcindx, lroffset, lcoffset, rsrc, csrc
@@ -191,7 +190,7 @@ subroutine write_output(k_indx)
                 end do
             end do
 
-            allocate(temp(local_num_ele))
+            allocate(temp(evec%size_))
             temp = real(evec%mat)
             call h5dwrite_f(dset_id, H5T_IEEE_F64LE, temp, &
                             dim_evec, hdf5_error, mem_space_id = &

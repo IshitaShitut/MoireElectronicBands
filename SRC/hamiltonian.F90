@@ -8,6 +8,11 @@ subroutine create_hamiltonian(k_indx)
     integer :: ia_first, ja_first, iastart, jastart, iaend, jaend , rsrc, csrc
     integer :: lroffset, lcoffset, ia, ja, lrindx, lcindx, ipos
     double complex :: hij
+#ifdef __DEBUG
+    integer :: i,j
+    character(len=50) :: format_
+#endif
+
 
     rsrc = 0
     csrc = 0
@@ -52,6 +57,24 @@ subroutine create_hamiltonian(k_indx)
 
         end do
     end do
+
+#ifdef __DEBUG
+    write(debug_str,'(A)') "The local hamiltoninans in each rank are: "
+    call debug_output(0)
+    do i=1,mpi_global%size_
+        write(format_, '(A,I0,A)') '(A,I0,A,',hamiltonian%size_,'(F12.6,F12.6,6X))'
+        if (mpi_global%rank==i-1) then
+            write(*,format_) "Rank :", mpi_global%rank, &
+                             "\r\nHamiltonian : \r\n", (real(hamiltonian%mat(j)), &
+                             aimag(hamiltonian%mat(j)), j=1,hamiltonian%size_)
+        end if
+        call mpi_barrier(mpi_global%comm, mpierr)
+    end do
+    call mpi_barrier(mpi_global%comm, mpierr)
+
+#endif
+
+
 
 #ifdef __KPOOL    
     call mpi_barrier(mpi_local%comm, mpierr)

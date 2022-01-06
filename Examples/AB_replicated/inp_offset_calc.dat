@@ -31,5 +31,5 @@ onsite energy         : 0.0              # in meV
 mb                    : 32
 nb                    : 32
 
-output file name      : bands_AB_replicate_E0-Kpt.hdf5
+output file name      : bands_AB_replicate_E0-Kpt
 output_file_location  : ./

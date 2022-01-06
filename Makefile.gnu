@@ -16,7 +16,7 @@ SCALAPACK_LIBS = -L${NETLIB_SCALAPACK_ROOT}/lib -lscalapack
 
 FLFLAGS = ${BLAS_LIBS} ${LAPACK_LIBS} ${SCALAPACK_LIBS}
 
-FCFLAGS = -g -fcheck=bounds -fbacktrace -O3 -I$(SRC_DIR) -fPIC -Wall 
+FCFLAGS = -g -fcheck=bounds -fbackslash -fbacktrace -O3 -I$(SRC_DIR) -fPIC -Wall 
 
 CPP = cpp -P 
 CPPFLAGS = -D__DEBUG #-D__KPOOL
