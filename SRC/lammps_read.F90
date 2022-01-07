@@ -95,8 +95,8 @@ SUBROUTINE read_lammps_data()
   SELECT CASE (lammps_file%atom_style)
     CASE ("atomic","Atomic","ATOMIC")
       DO i=1,moire%natom
-        READ(1,*) temp, temp, moire%at_types_i(i), moire%real_pos(i,1), &
-                              moire%real_pos(i,2), moire%real_pos(i,3)
+        READ(1,*) temp, moire%at_types_i(i), moire%real_pos(i,1), &
+                        moire%real_pos(i,2), moire%real_pos(i,3)
       END DO
 #ifdef __DEBUG
       WRITE(debug_str, '(A)') '\r\n Atom Number      Atom type         X          Y          Z'
