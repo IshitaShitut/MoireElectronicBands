@@ -1,7 +1,7 @@
 # Moire Electronic Bands
 
 Code to calculate the tight binding band structure of Moire systems.  
-The supported Moire structures right now are in LAMMPS output format.  
+The Moire structures should be in LAMMPS output format.  
 
 ## Prerequisites
 
@@ -53,13 +53,13 @@ range                 : < A/I/V >    # A = compute all evals
                                      # V = compute eigenvalues from a min-max range 
 
 min eigval            :              # minimum value of the eigenvalue to be found
-				     # Ignored if compute eigvecs = A/I 
+				     # Ignored if range = A/I 
 max eigval            :		     # maximum value of the eigenvalue to be found 
-				     # Ignored if compute eigvecs = A/I 
+				     # Ignored if range = A/I 
 min index             :		     # lowest index of the eigenvalue to be found
-			             # Ignored if compute eigvecs = A/V  
+			             # Ignored if range = A/V  
 max index             : 	     # highest index of the eigenvalue to be found 
-				     # Ignored if compute eigvecs = A/V
+				     # Ignored if range = A/V
 
 mb                    :              # (mb, nb) are the block sizes for block cyclic
 nb                    : 	     # distribution of the matrix. 

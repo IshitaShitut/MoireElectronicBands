@@ -2,8 +2,8 @@ import h5py
 import matplotlib.pyplot as plt
 import numpy as np
 
-fname = 'bands_21.8_E0_v1.hdf5'
-nbands = 28
+fname = 'bands_21.8_E0.hdf5'
+nbands = 10
 no_k_pts = 31
 index_ = [i for i in range(no_k_pts)]
 

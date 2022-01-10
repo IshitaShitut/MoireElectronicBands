@@ -58,7 +58,7 @@ module global_variables
     type(bz_points) :: k_file
     type(system) :: moire
     type(complex_arrays) :: hamiltonian, evec
-    integer(hsize_t), allocatable, dimension(:,:) :: evec_selection_arr
+!    integer(hsize_t), allocatable, dimension(:,:) :: evec_selection_arr
     double precision, allocatable, dimension(:) :: eval
     type(scalapack_variables) :: pzheevx_vars
     integer , parameter :: BLOCK_CYCLIC_2D = 1, DLEN_ = 9, DTYPE_ = 1,     &
@@ -88,6 +88,6 @@ module global_variables
     character(500) :: output_file_name, output_file_location
 
     integer , dimension(8) :: date_time
-    character(len=500), parameter :: date_format = '(A,X,2(I2,A),I4,3(A,I2.2),A,SP,I0,A,SS,I0)'
+    character(len=500), parameter :: date_format = '(A,X,2(I0,A),I4,3(A,I2.2),A,SP,I0,A,SS,I0)'
 
 end module

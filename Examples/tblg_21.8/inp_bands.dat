@@ -19,13 +19,13 @@ num kpools            : 3
 
 
 compute eigvecs       : yes
-range                 : A         
+range                 : I         
 min eigval            : -0.400
 max eigval            : 0.400 
-min index             : 2521
-max index             : 2524
+min index             : 9
+max index             : 18
 
-num neighbours        : 1 
+num neighbours        : 5 
 e_field_z             : 0.0              # in meV  
 onsite energy         : 785.72523027     # in meV
 mb                    : 4
