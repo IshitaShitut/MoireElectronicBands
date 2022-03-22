@@ -1,0 +1,35 @@
+# -----------------------------------------------------------------
+# Input file for electronic Band Structure Calculations in Moire
+# -----------------------------------------------------------------
+
+
+lammps file location  : ./
+lammps file name      : lammps_tblg_1.08 
+natom                 : 11164
+atom types            : 1
+atom style            : molecular
+
+
+k file location       : ./ 
+k file name           : kpt_dos_1.08.dat 
+nkpt                  : 452           
+
+
+num kpools            : 3
+
+
+compute eigvecs       : yes
+range                 : I         
+min eigval            : -0.400
+max eigval            : 0.400 
+min index             : 5565
+max index             : 5600
+
+num neighbours        : 1 
+e_field_z             : 0.0                 # in meV  
+onsite energy         : 790.68236929        # in meV
+mb                    : 32
+nb                    : 32
+
+output file name      : dos_1.08_E0
+output_file_location  : ./ 

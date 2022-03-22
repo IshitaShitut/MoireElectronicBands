@@ -20,7 +20,6 @@ FCFLAGS = -O3 -g -traceback -ip -assume bscc -I${MKLROOT}/include/intel64/ilp64 
 CPP = cpp -P 
 CPPFLAGS = #-D__DEBUG #-D__KPOOL -D__DEBUG
 
-
 all: $(MODOBJS) $(OBJS)
 	$(FC) $(FCFLAGS) -o $(EXE) $(OBJS) $(MODOBJS) $(FLFLAGS)
 

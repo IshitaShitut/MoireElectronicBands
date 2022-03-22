@@ -11,8 +11,8 @@ atom style            : molecular
 
 
 k file location       : ./ 
-k file name           : k_points.dat 
-nkpt                  : 300           
+k file name           : kpt_dos.dat 
+nkpt                  : 5002           
 
 
 num kpools            : 3
@@ -31,5 +31,5 @@ onsite energy         : 785.72523027     # in meV
 mb                    : 4
 nb                    : 4
 
-output file name      : bands_21.8_E0
+output file name      : dos_21.8_E0
 output_file_location  : ./

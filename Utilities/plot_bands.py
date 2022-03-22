@@ -1,22 +1,11 @@
-import h5py
-import matplotlib.pyplot as plt
-import numpy as np
+from pymelecutil import plot_figures
 
-fname = 'bands_1.61_E0.hdf5'
-nbands = 16 
-no_k_pts = 31
-index_ = [i for i in range(no_k_pts)]
-
-data = h5py.File(fname, 'r')
-
-eigvals = np.empty((no_k_pts, nbands))
-
-counter = 0
-for group in data.keys():
-    ds_data = data[group]['eigenvalues']
-    eigvals[counter] = ds_data[:]
-    counter+=1
-x = [i for i in range(no_k_pts)]
-for i in range(nbands):
-    plt.plot(x, eigvals[:,i],c='k')
-plt.show()
+label=(r'$\Gamma $','M', 'K', r'$\Gamma $')
+en_range = [-.250,.250]
+plt = plot_figures(dpi=500,en_range=en_range)
+plt.plot_band_structure(data_file='/home/mshinjan/Electronic_bands_data/tblg_0.95/bands_0.95_E0.hdf5',label=label,
+                        nbands=14284,nkpt=70,kfile='/home/mshinjan/Electronic_bands_data/tblg_0.95/kpt_bands.dat',
+                        save=False)
+#plt.plot_band_structure(data_file='../Examples/tblg_21.8/bands_21.8_E0.hdf5',label=label, 
+#                        nbands=28, nkpt=300, kfile='../Examples/tblg_21.8/k_points.dat',
+#                        en_range=en_range,save=False)
