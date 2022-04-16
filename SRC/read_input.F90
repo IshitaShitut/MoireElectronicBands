@@ -10,7 +10,8 @@ subroutine read_input()
     integer :: error
     character(len=char_len) :: data_ 
     integer :: pos, i
-    character(char_len), dimension(2) :: args_
+    character(char_len), dimension(2) :: args1_
+    character(char_len), allocatable, dimension(:) :: args2_
     integer, parameter :: inp_unit = 20
     character(1), external :: capital
 
@@ -70,91 +71,109 @@ subroutine read_input()
             end if
 
             pos = index(data_,':')
-            args_(1) = data_(1:pos-1)
-            args_(2) = data_(pos+1:)
+            args1_(1) = data_(1:pos-1)
+            args1_(2) = data_(pos+1:)
 
-            do i=1,len_trim(args_(1))
-                args_(1)(i:i) = capital(args_(1)(i:i))
+            do i=1,len_trim(args1_(1))
+                args1_(1)(i:i) = capital(args1_(1)(i:i))
             end do            
             
-            select case(trim(args_(1)))
+            select case(trim(args1_(1)))
                 case ("LAMMPS FILE LOCATION", "LAMMPS_FILE_LOCATION")
-                    lammps_file%location = trim(adjustl(args_(2)))
+                    lammps_file%location = trim(adjustl(args1_(2)))
                 case ("LAMMPS_FILE_NAME", "LAMMPS FILE NAME")
-                    lammps_file%name_ = trim(adjustl(args_(2)))
+                    lammps_file%name_ = trim(adjustl(args1_(2)))
                 case ("NATOM")
-                    read(args_(2), *) moire%natom
+                    read(args1_(2), *) moire%natom
                 case ("ATOM_STYLE", "ATOM STYLE")
-                    lammps_file%atom_style = trim(adjustl(args_(2)))
+                    lammps_file%atom_style = trim(adjustl(args1_(2)))
                 case ("ATOM_TYPES", "ATOM TYPES")
-                    read(args_(2),*) lammps_file%at_types
+                    read(args1_(2),*) lammps_file%at_types
                 case ("K_FILE_LOCATION", "K FILE LOCATION")
-                    k_file%location = trim(adjustl(args_(2)))
+                    k_file%location = trim(adjustl(args1_(2)))
                 case ("K_FILE_NAME","K FILE NAME")
-                    k_file%name_ = trim(adjustl(args_(2)))
+                    k_file%name_ = trim(adjustl(args1_(2)))
                 case ("NKPT")
-                    read(args_(2),*) k_file%npt
+                    read(args1_(2),*) k_file%npt
 #ifdef __KPOOL
                 case ("NUM_KPOOLS","NUM KPOOLS")
-                    read(args_(2), *) num_pools
+                    read(args1_(2), *) num_pools
 #endif  
                 case ("COMPUTE_EIGVECS","COMPUTE EIGVECS")
-                    args_(2) = trim(adjustl(args_(2)))
-                    if (args_(2) == 'yes' .or. args_(2) == 'true' .or. &
-                        args_(2) == 'Yes' .or. args_(2) == 'True' .or. &
-                        args_(2) == 'YES' .or. args_(2) == 'TRUE') then
+                    args1_(2) = trim(adjustl(args1_(2)))
+                    if (args1_(2) == 'yes' .or. args1_(2) == 'true' .or. &
+                        args1_(2) == 'Yes' .or. args1_(2) == 'True' .or. &
+                        args1_(2) == 'YES' .or. args1_(2) == 'TRUE') then
                         pzheevx_vars%comp_evec = 'V'
-                    elseif (args_(2) == 'no' .or. args_(2) == 'false' .or. &
-                            args_(2) == 'No' .or. args_(2) == 'False' .or. &
-                            args_(2) == 'NO' .or. args_(2) == 'FALSE') then
+                    elseif (args1_(2) == 'no' .or. args1_(2) == 'false' .or. &
+                            args1_(2) == 'No' .or. args1_(2) == 'False' .or. &
+                            args1_(2) == 'NO' .or. args1_(2) == 'FALSE') then
                         pzheevx_vars%comp_evec = 'N'
                     else
                         write(err_msg, '(3A)') "Could not interpret command ", &
-                                               args_(2), &
+                                               args1_(2), &
                                                "\r\nEigenvectors will not be computed."
                         call error_message()
                         pzheevx_vars%comp_evec = 'N'
                     end if
                 case ("RANGE")
-                    if (trim(adjustl(args_(2))) == 'A') then
+                    if (trim(adjustl(args1_(2))) == 'A') then
                         pzheevx_vars%range_ = 'A'
-                    elseif (trim(adjustl(args_(2))) == 'V') then 
+                    elseif (trim(adjustl(args1_(2))) == 'V') then 
                         pzheevx_vars%range_ = 'V'
-                    elseif (trim(adjustl(args_(2))) == 'I') then   
+                    elseif (trim(adjustl(args1_(2))) == 'I') then   
                         pzheevx_vars%range_ = 'I'
                     else 
                         write(err_msg, '(3A)') 'Could not interpret command', &
-                                                trim(adjustl(args_(2))), &
+                                                trim(adjustl(args1_(2))), &
                                                 '\r\n Setting range to A'
                     end if
                 case ("MAX_EIGVAL", "MAX EIGVAL")
-                    read(args_(2), *) pzheevx_vars%vu
+                    read(args1_(2), *) pzheevx_vars%vu
                 case ("MIN_EIGVAL", "MIN EIGVAL")
-                    read(args_(2), *) pzheevx_vars%vl
+                    read(args1_(2), *) pzheevx_vars%vl
                 case ("MAX_INDEX", "MAX INDEX")
-                    read(args_(2), *) pzheevx_vars%iu
+                    read(args1_(2), *) pzheevx_vars%iu
                 case ("MIN_INDEX", "MIN INDEX")
-                    read(args_(2), *) pzheevx_vars%il
+                    read(args1_(2), *) pzheevx_vars%il
                 case ("ABSTOL")
-                    read(args_(2), *) pzheevx_vars%abstol
+                    read(args1_(2), *) pzheevx_vars%abstol
                 case ("ORFAC")
-                    read(args_(2), *) pzheevx_vars%orfac 
+                    read(args1_(2), *) pzheevx_vars%orfac 
                 case ("NUM NEIGHBOURS", "NUM_NEIGHBOURS")
-                    read(args_(2), *) no_neigh
+                    read(args1_(2), *) no_neigh
                 case ("E FIELD Z", "E_FIELD_Z")
-                    read(args_(2), *) E_field
+                    read(args1_(2), *) E_field
                 case ("ONSITE_ENERGY", "ONSITE ENERGY")
-                    read(args_(2), *) moire%onsite_en
+                    if (lammps_file%at_types == 0) then
+                        write(err_msg, '(2A)') "Atom type cannot be 0 ", &
+                            "Atom type should be specified before Onsite Energy"
+                        call error_message()
+                    endif
+                    allocate(moire%onsite_en(lammps_file%at_types))
+                    if (lammps_file%at_types > 1) then
+                        allocate(args2_(lammps_file%at_types))
+                        args2_(1) = args1_(2)
+                        do i = 1, (lammps_file%at_types-1)
+                            pos = index(trim(args2_(i)),',')
+                            data_ = args2_(i)
+                            args2_(i) = data_(1:pos-1)
+                            args2_(i+1) = data_(pos+1:)
+                            read(args2_(i), *) moire%onsite_en(i)
+                        end do
+                    else
+                        read(args1_(2), *) moire%onsite_en(:)
+                    endif
                 case ("MB")
-                    read(args_(2),*) pzheevx_vars%mb
+                    read(args1_(2),*) pzheevx_vars%mb
                 case ("NB")
-                    read(args_(2),*) pzheevx_vars%nb
+                    read(args1_(2),*) pzheevx_vars%nb
                 case ("OUTPUT FILE NAME", "OUTPUT_FILE_NAME")
-                    write(output_file_name,'(A)') trim(adjustl(args_(2)))
+                    write(output_file_name,'(A)') trim(adjustl(args1_(2)))
                 case ("OUTPUT FILE LOCATION", "OUTPUT_FILE_LOCATION")
-                    write(output_file_location,'(A)') trim(adjustl(args_(2)))
+                    write(output_file_location,'(A)') trim(adjustl(args1_(2)))
                 case default
-                    write(err_msg, '(3A)') "\r\n%%%%%\r\nCommand ", trim(args_(1)), " not recognised"
+                    write(err_msg, '(3A)') "\r\n%%%%%\r\nCommand ", trim(args1_(1)), " not recognised"
                     call error_message()
                     err_msg = "Ignoring this command\r\n"
                     call error_message()  
@@ -271,7 +290,7 @@ subroutine default_variables()
     lammps_file%location = './'
     lammps_file%name_ = 'lammps.dat'
     lammps_file%atom_style = 'A'
-    lammps_file%at_types = 1
+    lammps_file%at_types = 0
     moire%natom = 1
     k_file%location = './'
     k_file%name_ = 'k_file.dat'
