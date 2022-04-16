@@ -634,7 +634,8 @@ class plot_figures():
         for i in range(nbands):
             plt.plot(x,eigvals[:,i],c='b')
         plt.xticks(nodes,label,fontsize=18)
-        plt.ylabel('Energy (eV)', size=15)
+        plt.ylabel('Energy (eV)', size=18)
+        plt.yticks(fontsize=20)
         if self.en_range!=None:
             plt.ylim(self.en_range[0],self.en_range[1])
         for n in range(len(nodes)):

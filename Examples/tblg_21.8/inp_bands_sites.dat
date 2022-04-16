@@ -1,0 +1,35 @@
+# -----------------------------------------------------------------
+# Input file for electronic Band Structure Calculations in Moire
+# -----------------------------------------------------------------
+
+
+lammps file location  : /home/mshinjan/Twister/examples/Homobilayer_hex/Graphene/Angle_21.78 
+lammps file name      : lammps.dat
+natom                 : 28
+atom types            : 4
+atom style            : molecular
+
+
+k file location       : ./ 
+k file name           : k_points.dat 
+nkpt                  : 300           
+
+
+num kpools            : 3
+
+
+compute eigvecs       : no
+range                 : A         
+min eigval            : -0.400
+max eigval            : 0.400 
+min index             : 9
+max index             : 18
+
+num neighbours        : 10
+e_field_z             : 0.0              # in meV  
+onsite energy         : 85.72523027,78.72523027, 0.72523027,12.727  # in meV
+mb                    : 4
+nb                    : 4
+
+output file name      : bands_21.8_E0
+output_file_location  : ./

@@ -8,7 +8,8 @@ subroutine read_input()
     
     character(len=char_len) :: input_file
     integer :: error
-    character(len=char_len) :: data_ 
+    character(len=char_len) :: data_
+    character(len=char_len) :: format_ 
     integer :: pos, i
     character(char_len), dimension(2) :: args1_
     character(char_len), allocatable, dimension(:) :: args2_
@@ -149,6 +150,7 @@ subroutine read_input()
                         write(err_msg, '(2A)') "Atom type cannot be 0 ", &
                             "Atom type should be specified before Onsite Energy"
                         call error_message()
+                        call exit
                     endif
                     allocate(moire%onsite_en(lammps_file%at_types))
                     if (lammps_file%at_types > 1) then
@@ -160,6 +162,7 @@ subroutine read_input()
                             args2_(i) = data_(1:pos-1)
                             args2_(i+1) = data_(pos+1:)
                             read(args2_(i), *) moire%onsite_en(i)
+                            read(args2_(i+1),*) moire%onsite_en(i+1)
                         end do
                     else
                         read(args1_(2), *) moire%onsite_en(:)
@@ -245,7 +248,8 @@ subroutine read_input()
     write(debug_str, '(A,F0.6,A)') "Electric Field applied in the Z direction : ", &
                                     E_field, " meV"
     call debug_output(0)
-    write(debug_str, '(A,F0.6,A)') "Onsite energy: ", moire%onsite_en, " meV"
+    write(format_,'(A,I0,A)') '(A,',lammps_file%at_types,'(F0.6,2X),A)'
+    write(debug_str, trim(adjustl(format_))) "Onsite energy: ", moire%onsite_en, " meV"
     call debug_output(0)
     write(debug_str, '(2A)') "Output file name : ", trim(output_file_name)
     call debug_output(0)
