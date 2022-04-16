@@ -9,6 +9,7 @@ SUBROUTINE read_lammps_data()
 
   ALLOCATE(moire%mass(lammps_file%at_types))
   ALLOCATE(moire%at_types_i(moire%natom))
+  ALLOCATE(moire%lay_types(moire%natom))
   ALLOCATE(moire%real_pos(moire%natom,3))
   ALLOCATE(moire%crys(moire%natom,3))
   
@@ -109,15 +110,15 @@ SUBROUTINE read_lammps_data()
 #endif
     CASE ("molecular","Molecular","MOLECULAR")
       DO i=1,moire%natom
-        READ(1,*) temp, temp, moire%at_types_i(i), moire%real_pos(i,1), &
+        READ(1,*) temp, moire%lay_types(i), moire%at_types_i(i), moire%real_pos(i,1), &
                             moire%real_pos(i,2), moire%real_pos(i,3)
       END DO 
 #ifdef __DEBUG
-      WRITE(debug_str, '(A)') '\r\n Atom type         X          Y          Z'
+      WRITE(debug_str, '(A)') '\r\nLayer    Atom type         X          Y          Z'
       CALL debug_output(0)
       DO i = 1,moire%natom
-        WRITE(debug_str, '(I8, 3F12.6)') moire%at_types_i(i), moire%real_pos(i,1), &
-                                         moire%real_pos(i,2), moire%real_pos(i,3)
+        WRITE(debug_str, '(2I8, 3F12.6)') moire%lay_types(i), moire%at_types_i(i), &
+                              moire%real_pos(i,1), moire%real_pos(i,2), moire%real_pos(i,3)
         CALL debug_output(0)
       END DO
 #endif

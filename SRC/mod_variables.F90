@@ -39,8 +39,9 @@ module global_variables
         double precision, allocatable, dimension(:) :: mass
         double precision, allocatable, dimension(:,:) :: real_pos, crys, normal
         integer , allocatable, dimension(:) :: at_types_i
+        integer , allocatable, dimension(:) :: lay_types
         double precision, dimension(3,3) :: lat , rec_lat
-        double precision :: onsite_en
+        double precision, allocatable, dimension(:) :: onsite_en(:)
     end type
 
     type complex_arrays

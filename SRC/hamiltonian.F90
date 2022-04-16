@@ -115,7 +115,7 @@ subroutine compute_hij(i,j,k_indx,hij)
         else
             hij = cmplx(-E_field/2000, 0)
         end if
-        hij = hij - cmplx(moire%onsite_en/1000,0)
+        hij = hij - cmplx(moire%onsite_en(moire%at_types_i(i))/1000,0)
     else
         do l = -no_neigh, no_neigh
            do m = -no_neigh, no_neigh
