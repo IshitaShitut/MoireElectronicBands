@@ -3,7 +3,7 @@ SUBROUTINE read_lammps_data()
   USE global_variables
 
   IMPLICIT NONE
-  INTEGER :: i, temp, error
+  INTEGER :: i, j, temp, error
   DOUBLE PRECISION :: x1, x2, y1, y2, z1, z2, xy, xz, yz 
   CHARACTER(CHAR_LEN) :: file_name_
 
@@ -12,7 +12,7 @@ SUBROUTINE read_lammps_data()
   ALLOCATE(moire%lay_types(moire%natom))
   ALLOCATE(moire%real_pos(moire%natom,3))
   ALLOCATE(moire%crys(moire%natom,3))
-  
+  ALLOCATE(moire%sup_cell_info(moire%natom,3))
   
   WRITE(file_name_,'(2A)') TRIM(ADJUSTL(lammps_file%location)), &
                            TRIM(ADJUSTL(lammps_file%name_))
@@ -48,8 +48,8 @@ SUBROUTINE read_lammps_data()
   moire%lat(2,1) = xy
   moire%lat(2,2) = y2-y1
   moire%lat(2,3) = 0
-  moire%lat(3,1) = 0
-  moire%lat(3,2) = 0
+  moire%lat(3,1) = xz
+  moire%lat(3,2) = yz
   moire%lat(3,3) = z2-z1
 
 #ifdef __DEBUG
@@ -97,28 +97,36 @@ SUBROUTINE read_lammps_data()
     CASE ("atomic","Atomic","ATOMIC")
       DO i=1,moire%natom
         READ(1,*) temp, moire%at_types_i(i), moire%real_pos(i,1), &
-                        moire%real_pos(i,2), moire%real_pos(i,3)
+                        moire%real_pos(i,2), moire%real_pos(i,3), &
+                        moire%sup_cell_info(i,1), moire%sup_cell_info(i,2), &
+                        moire%sup_cell_info(i,3)
       END DO
 #ifdef __DEBUG
       WRITE(debug_str, '(A)') '\r\n Atom Number      Atom type         X          Y          Z'
       CALL debug_output(0)
       DO i = 1,moire%natom
-        WRITE(debug_str, '(2I8, 3F12.6)') i, moire%at_types_i(i), moire%real_pos(i,1), &
-                                          moire%real_pos(i,2), moire%real_pos(i,3)
+        WRITE(debug_str, '(2I8, 3F12.6, 3I6)') i, moire%at_types_i(i), moire%real_pos(i,1), &
+                                          moire%real_pos(i,2), moire%real_pos(i,3), &
+                        moire%sup_cell_info(i,1), moire%sup_cell_info(i,2), &
+                        moire%sup_cell_info(i,3)
         CALL debug_output(0)
       END DO
 #endif
     CASE ("molecular","Molecular","MOLECULAR")
       DO i=1,moire%natom
         READ(1,*) temp, moire%lay_types(i), moire%at_types_i(i), moire%real_pos(i,1), &
-                            moire%real_pos(i,2), moire%real_pos(i,3)
+                            moire%real_pos(i,2), moire%real_pos(i,3), &
+                        moire%sup_cell_info(i,1), moire%sup_cell_info(i,2), &
+                        moire%sup_cell_info(i,3)
       END DO 
 #ifdef __DEBUG
       WRITE(debug_str, '(A)') '\r\nLayer    Atom type         X          Y          Z'
       CALL debug_output(0)
       DO i = 1,moire%natom
-        WRITE(debug_str, '(2I8, 3F12.6)') moire%lay_types(i), moire%at_types_i(i), &
-                              moire%real_pos(i,1), moire%real_pos(i,2), moire%real_pos(i,3)
+        WRITE(debug_str, '(2I8, 3F12.6, 3I6)') moire%lay_types(i), moire%at_types_i(i), &
+                              moire%real_pos(i,1), moire%real_pos(i,2), moire%real_pos(i,3), &
+                        moire%sup_cell_info(i,1), moire%sup_cell_info(i,2), &
+                        moire%sup_cell_info(i,3)
         CALL debug_output(0)
       END DO
 #endif
@@ -136,6 +144,16 @@ SUBROUTINE read_lammps_data()
 
   DO i=1,moire%natom
     CALL linsolve(moire%real_pos(i,:),moire%lat,moire%crys(i,:))
+  END DO
+
+  DO i=1,moire%natom
+    DO j=1,3
+        moire%crys(i,j) = moire%crys(i,j) + moire%sup_cell_info(i,j)
+        moire%real_pos(i,j) = moire%real_pos(i,j) + &
+                              moire%sup_cell_info(i,1)*moire%lat(1,j) + &
+                              moire%sup_cell_info(i,2)*moire%lat(2,j) + &
+                              moire%sup_cell_info(i,3)*moire%lat(3,j)
+    END DO
   END DO
 
 #ifdef __DEBUG

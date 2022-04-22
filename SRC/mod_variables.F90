@@ -37,6 +37,7 @@ module global_variables
     type system
         integer  :: natom
         double precision, allocatable, dimension(:) :: mass
+        integer, allocatable, dimension(:,:) :: sup_cell_info
         double precision, allocatable, dimension(:,:) :: real_pos, crys, normal
         integer , allocatable, dimension(:) :: at_types_i
         integer , allocatable, dimension(:) :: lay_types

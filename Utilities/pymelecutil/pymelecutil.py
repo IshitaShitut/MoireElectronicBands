@@ -129,11 +129,17 @@ class moire_electron_utils():
                              a 5X5X1 mesh
                     
                     GAMMA: True for gamma centred mesh, False otherwise  
+
+                    use_symmetry: True/False
             
-            Output: 
-                    k_points_crys: numpy array of the k points to be sampled 
-                                   in crystal coordinates 
-                    weights: the weights corresponding to each k-point
+            Output:
+                    output_file: File containing the list of k-points in the requested 
+                                 grid in reciprocal lattice.
+                                 If symmetry is on, this file stores the reduced grid
+                                 information
+                    full_grid_file : If symmetry is on, this file stores all the points
+                                     in the reciprocal lattice in a n X n grid.
+                                     If symmetry is off this file is not created.
         """
         
         cell = (self.lat, self.crys_pos, self.mol_id)
@@ -228,6 +234,9 @@ class moire_electron_utils():
 
 
     def read_full_grid(self, mesh, full_grid_file):
+        """
+            Read the full k grid.
+        """
         grid = np.loadtxt(full_grid_file, max_rows=mesh[0]*mesh[1]*mesh[2])
         with open(full_grid_file,'r') as f:
             lines = f.readlines()
@@ -251,17 +260,18 @@ class moire_electron_utils():
             Computes the density of states of a system
         """
 
-        from bz_integration import bz_integration as bzi
-        from distribute_lists import distribute
-
-        comm = MPI.COMM_WORLD
-        rank = comm.Get_rank()  
-        size = comm.Get_size()
         
 
         if method=='linear triangulation':
-
+            
+            from bz_integration import bz_integration as bzi
+            from distribute_lists import distribute
             from scipy.spatial import Delaunay
+
+            comm = MPI.COMM_WORLD
+            rank = comm.Get_rank()  
+            size = comm.Get_size()
+
 
             moire_area = abs(np.linalg.det(self.lat[0:2,0:2]))*0.01 # in nm^2
             BZ_area = abs(np.linalg.det(self.rec_lat[0:2,0:2]))*100 # in nm^-2
@@ -466,7 +476,14 @@ class moire_electron_utils():
                save=False, 
                dpi=300,
                plot_limits=None,
+               save_strain_info = False,
+               strain_file = "strain.hdf5",
                output_file_name='Strain.jpg'):
+        """
+        
+        """
+
+
         from neighbor import neighbor_list as n
         import matplotlib.pyplot as plt
         from matplotlib.collections import LineCollection
@@ -475,7 +492,10 @@ class moire_electron_utils():
         if self.neigh_list==None:
             self.neigh_list = n.create_neigh_list(self.real_pos, self.lat)
         strain = n.calculate_strain(self.neigh_list, equib_latcon)
-        #fig,ax = plt.subplots(1,2)
+        if save_strain_info:
+            with h5py.File(strain_file,'w') as f:
+                dset = f.create_dataset('strain',data=strain,dtype='f',compression='gzip',compression_opts=9)
+            f.close()
         fig = plt.figure(figsize=(18,6))
         grid = ImageGrid(fig, 111,          # as in plt.subplot(111)
                  nrows_ncols=(1,2),
@@ -592,7 +612,7 @@ class moire_electron_utils():
 
 
 
-class plot_figures():
+class plot_data():
     """
         Plot the band structures, DOS, velocity and other relevant data extracted
     """
@@ -607,8 +627,8 @@ class plot_figures():
         self.en_range = en_range
         return
 
-    def plot_band_structure(self, data_file, nbands, nkpt, kfile, label, 
-                            save=True,savefile='bandstruct.png', closed_loop=True):
+    def band_structure(self, data_file, nbands, nkpt, kfile, label, 
+                       save=True,savefile='bandstruct.png', closed_loop=True):
         
         with open(kfile,'r') as f:
             for nodes in f:

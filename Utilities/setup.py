@@ -2,17 +2,24 @@ import setuptools
 from numpy.distutils.core import setup, Extension
 
 ext1 = Extension(name='bz_integration', 
-                 sources=['bz_integration.f90'],
+                 sources=['pymelecutil/fortran_routines/bz_integration.f90'],
                  f2py_options=['--verbose'])
 
 ext2 = Extension(name='neighbor',
-                 sources=['neighbor_list.f90'],
+                 sources=['pymelecutil/fortran_routines/neighbor_list.f90'],
                  f2py_options=['--verbose'])
 
 
-setup(name = 'bz_integration',
-      description = 'BZ integration using various methods',
+setup(name = 'pymelecutil',
+      version = "1.0",
+      description = 'Utility frunctions for Moire Electronic Bands',
+      long_description=open('README.md').read(),
+      long_description_content_type='text/markdown',
       author = 'Shinjan Mandal',
       author_email = 'mshinjan@iisc.ac.in',
+      url = "https://github.com/ShinjanM/MoireElectronicBands",
+      packages = ['pymelecutil'],
+      package_dir = {'pymelecutil':'pymelecutil/'},
+      install_requires = ["numpy", "scipy", "matplotlib", "spglib", "mpi4py", "h5py"],
       ext_modules = [ext1,ext2]
       )
