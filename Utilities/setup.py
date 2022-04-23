@@ -1,13 +1,13 @@
-import setuptools
+#import setuptools
 from numpy.distutils.core import setup, Extension
 
 ext1 = Extension(name='bz_integration', 
                  sources=['pymelecutil/fortran_routines/bz_integration.f90'],
-                 f2py_options=['--verbose'])
+                 )
 
 ext2 = Extension(name='neighbor',
                  sources=['pymelecutil/fortran_routines/neighbor_list.f90'],
-                 f2py_options=['--verbose'])
+                 )
 
 
 setup(name = 'pymelecutil',
@@ -20,6 +20,6 @@ setup(name = 'pymelecutil',
       url = "https://github.com/ShinjanM/MoireElectronicBands",
       packages = ['pymelecutil'],
       package_dir = {'pymelecutil':'pymelecutil/'},
-      install_requires = ["numpy", "scipy", "matplotlib", "spglib", "mpi4py", "h5py"],
+      install_requires = open('requirements.txt').read(),
       ext_modules = [ext1,ext2]
       )

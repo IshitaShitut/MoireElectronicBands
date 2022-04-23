@@ -18,7 +18,7 @@ nkpt                  : 31
 num kpools            : 3
 
 
-compute eigvecs       : yes
+compute eigvecs       : no
 range                 : I         
 min eigval            : -0.400
 max eigval            : 0.400 
