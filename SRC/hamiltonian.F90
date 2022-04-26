@@ -1,18 +1,34 @@
-subroutine create_hamiltonian(k_indx)
+subroutine create_hamiltonian(k_indx,derivative)
 
     use mpi
     use global_variables
 
+    ! ---------------------------------------------------------------------------- 
+    ! Subroutine which creates the hamiltonian in a block cyclically distributed 
+    ! manner across the processors. If the optional variable derivative is
+    ! passed, it computes the derivative of the Hamiltonian for 
+    ! 
+    !       derivative = x ::  dH/dx is computed
+    !       derivative = y ::  dH/dy is computed
+    !       derivative = z ::  dH/dz is computed
+    !
+    !   Central finite difference is used for computing the derivatives.
+    !   The delta is taken as (0.0001 1/Ang) in the reciprocal lattice,
+    !   in each direction.
+    !
+    ! ----------------------------------------------------------------------------
+
     implicit none
-    integer, intent(in) :: k_indx
+    integer, intent(in) :: k_indx, derivative
+    double precision, dimension(3) :: delta, delta_crys, k_shifted
     integer :: ia_first, ja_first, iastart, jastart, iaend, jaend , rsrc, csrc
     integer :: lroffset, lcoffset, ia, ja, lrindx, lcindx, ipos
-    double complex :: hij
+    double complex :: hij, hijplus, hijminus
+    double precision, parameter :: DEL_INCREMENT = 0.00001
 #ifdef __DEBUG
     integer :: i,j
     character(len=50) :: format_
 #endif
-
 
     rsrc = 0
     csrc = 0
@@ -47,11 +63,19 @@ subroutine create_hamiltonian(k_indx)
                     lrindx = lroffset + (ia-iastart)
                     lcindx = lcoffset + (ja-jastart)
                     ipos = lrindx + (lcindx-1)*hamiltonian%desca(LLD_)
-
-                    call compute_hij(ia,ja,k_indx,hij)
-
+                    if (derivative.ne.0) then
+                        delta = 0.0
+                        delta(derivative) = DEL_INCREMENT
+                        call linsolve(delta, moire%lat, delta_crys)
+                        k_shifted = k_file%points(k_indx,:)+delta/2
+                        call compute_hij(ia,ja,k_shifted,hijplus)
+                        k_shifted = k_file%points(k_indx,:)-delta
+                        call compute_hij(ia,ja,k_shifted,hijminus)
+                        hij = (hijplus-hijminus)/DEL_INCREMENT
+                    else
+                        call compute_hij(ia,ja,k_file%points(k_indx,:),hij)
+                    end if
                     hamiltonian%mat(ipos) = hij
-
                 end do
             end do
 
@@ -74,7 +98,7 @@ subroutine create_hamiltonian(k_indx)
 #endif
 
 
-
+    if (derivative.eq.0) then
 #ifdef __KPOOL    
     call mpi_barrier(mpi_local%comm, mpierr)
     write(debug_str,'(A,I0,A)') "Hamiltonian created for k-pt no.", k_indx ," on "
@@ -86,16 +110,24 @@ subroutine create_hamiltonian(k_indx)
     write(debug_str,'(A,I0,A)') "Hamiltonian created for k-pt no. ", k_indx, " on "
     call date_time_message(trim(debug_str))
 #endif
+    end if
 
 end subroutine
 
-subroutine compute_hij(i,j,k_indx,hij)
 
+
+
+
+
+
+
+
+subroutine compute_hij(i,j,k_pt,hij)
     use global_variables
-
     implicit none
 
-    integer, intent(in) :: i,j, k_indx
+    integer, intent(in) :: i,j
+    double precision, dimension(3), intent(in) :: k_pt
     double complex, intent(out) :: hij
     double precision, dimension(3) :: ri, rj, ri_crys, rj_crys, rij, rij_crys
     integer :: l, m
@@ -125,7 +157,7 @@ subroutine compute_hij(i,j,k_indx,hij)
               rj = matmul(transpose(moire%lat),rj_crys)
               rij = ri - rj
               rij_crys = ri_crys - rj_crys
-              kr = dot_product(k_file%points(k_indx,:),rij_crys)
+              kr = dot_product(k_pt,rij_crys)
               phase = exp(2*IM*PI*kr)
               call T_ij(i,j,rij,t)
               hij = hij + t*phase

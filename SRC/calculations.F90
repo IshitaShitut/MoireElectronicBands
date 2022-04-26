@@ -8,6 +8,7 @@ subroutine diagonalize_and_write()
     call setup_arrays()
 
     allocate(hamiltonian%mat(hamiltonian%size_),stat=allstat)
+    
     if (pzheevx_vars%comp_evec=='V') then
         allocate(evec%mat(evec%size_))
     else
@@ -15,8 +16,12 @@ subroutine diagonalize_and_write()
     end if
     allocate(eval(moire%natom)) 
 
+    if (comp_vel) then
+        allocate(vel%mat(vel%size_))
+    end if
+
     do k_loc = k_file%start, k_file%finish
-        call create_hamiltonian(k_loc)
+        call create_hamiltonian(k_loc,0)
         call diagonalize_hamiltonian()
         call write_output(k_loc)    
     end do  
@@ -24,6 +29,9 @@ subroutine diagonalize_and_write()
 
     deallocate(hamiltonian%mat)
     deallocate(eval)
+    if (allocated(vel%mat)) then
+        deallocate(vel%mat)
+    end if
     if (allocated(evec%mat)) then
         deallocate(evec%mat)
     end if
@@ -152,7 +160,17 @@ subroutine setup_arrays()
 
 #endif
 
+    ! Allocate velocity arrays
 
+    vel%locq = numroc(moire%natom, pzheevx_vars%mb, grid%mypcol, csrc, grid%npcol)
+    vel%locq = max(vel%locq,1)
+    vel%lld = numroc(moire%natom, pzheevx_vars%nb, grid%myprow, rsrc, grid%nprow)
+    vel%lld = max(vel%lld,1)
+
+    vel%size_ = vel%locq*evec%lld
+    call descinit(vel%desca, moire%natom, moire%natom, pzheevx_vars%mb, &
+                  pzheevx_vars%nb, rsrc, csrc, grid%context, vel%lld, info)
+    
     return
 
 end subroutine

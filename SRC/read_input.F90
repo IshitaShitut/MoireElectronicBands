@@ -106,16 +106,36 @@ subroutine read_input()
                         args1_(2) == 'Yes' .or. args1_(2) == 'True' .or. &
                         args1_(2) == 'YES' .or. args1_(2) == 'TRUE') then
                         pzheevx_vars%comp_evec = 'V'
+                        evec_comp = .true.
                     elseif (args1_(2) == 'no' .or. args1_(2) == 'false' .or. &
                             args1_(2) == 'No' .or. args1_(2) == 'False' .or. &
                             args1_(2) == 'NO' .or. args1_(2) == 'FALSE') then
                         pzheevx_vars%comp_evec = 'N'
+                        evec_comp = .false.
                     else
                         write(err_msg, '(3A)') "Could not interpret command ", &
                                                args1_(2), &
                                                "\r\nEigenvectors will not be computed."
                         call error_message()
                         pzheevx_vars%comp_evec = 'N'
+                        evec_comp = .false.
+                    end if
+                case ("GROUP VELOCITY", "GROUP_VELOCITY")
+                    args1_(2) = trim(adjustl(args1_(2)))
+                    if (args1_(2) == 'yes' .or. args1_(2) == 'true' .or. &
+                        args1_(2) == 'Yes' .or. args1_(2) == 'True' .or. &
+                        args1_(2) == 'YES' .or. args1_(2) == 'TRUE') then
+                        comp_vel = .true.
+                    elseif (args1_(2) == 'no' .or. args1_(2) == 'false' .or. &
+                            args1_(2) == 'No' .or. args1_(2) == 'False' .or. &
+                            args1_(2) == 'NO' .or. args1_(2) == 'FALSE') then
+                        comp_vel = .false.
+                    else
+                        write(err_msg, '(3A)') "Could not interpret command ", &
+                                               args1_(2), &
+                                               "\r\nVelocity will not be computed."
+                        call error_message()
+                        comp_vel = .false.
                     end if
                 case ("RANGE")
                     if (trim(adjustl(args1_(2))) == 'A') then
@@ -223,8 +243,10 @@ subroutine read_input()
     write(debug_str, '(A,I0)') "Number of simultaneous K-point diagonalizations:  ", num_pools
     call debug_output(0)
 #endif
-    write(debug_str, '(2A)') "Compute Eigenvectors: ", pzheevx_vars%comp_evec
-    call debug_output(0)    
+    write(debug_str, '(A,L)') "Compute Eigenvectors: ", evec_comp
+    call debug_output(0)   
+    write(debug_str, '(A,L)') "Compute Velocities: ", comp_vel
+    call debug_output(0) 
     write(debug_str, '(2A)') "Range of the calculation: ", trim(pzheevx_vars%range_)
     call debug_output(0)
     write(debug_str, '(A,F0.6)') "Minimum eigenvalue : ", pzheevx_vars%vl
@@ -301,7 +323,9 @@ subroutine default_variables()
     k_file%npt = 1
     k_file%start = 1
     k_file%finish = 1
+    evec_comp = .false.
     pzheevx_vars%comp_evec = 'N'
+    comp_vel = .false.
     pzheevx_vars%range_ = 'A'
     pzheevx_vars%il = 1
     pzheevx_vars%iu = 1
@@ -384,6 +408,10 @@ subroutine sanitize_input()
         call exit
     end if
   
+    if (comp_vel) then
+        pzheevx_vars%comp_evec='V'
+    end if
+
 
     write(full_file_details, '(3A)') trim(adjustl(output_file_location)), &
                                      trim(adjustl(output_file_name)),'.hdf5'

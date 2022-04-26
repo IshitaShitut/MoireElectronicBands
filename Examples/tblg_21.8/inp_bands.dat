@@ -12,13 +12,14 @@ atom style            : molecular
 
 k file location       : ./ 
 k file name           : k_points.dat 
-nkpt                  : 300           
+nkpt                  : 300         
 
 
 num kpools            : 3
 
 
-compute eigvecs       : yes
+compute eigvecs       : no
+group velocity        : yes
 range                 : A         
 min eigval            : -0.400
 max eigval            : 0.400 

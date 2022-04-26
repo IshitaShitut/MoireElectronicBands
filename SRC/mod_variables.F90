@@ -59,8 +59,8 @@ module global_variables
     type(lammps) :: lammps_file
     type(bz_points) :: k_file
     type(system) :: moire
-    type(complex_arrays) :: hamiltonian, evec
-!    integer(hsize_t), allocatable, dimension(:,:) :: evec_selection_arr
+    type(complex_arrays) :: hamiltonian, evec, vel
+    logical :: evec_comp, comp_vel
     double precision, allocatable, dimension(:) :: eval
     type(scalapack_variables) :: pzheevx_vars
     integer , parameter :: BLOCK_CYCLIC_2D = 1, DLEN_ = 9, DTYPE_ = 1,     &
