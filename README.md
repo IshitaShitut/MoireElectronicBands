@@ -48,6 +48,7 @@ num kpools            : 	     # Number of k-pools --- Not implemented in v1.0
 
 
 compute eigvecs       : < yes/no >
+group velocity        : < yes/no >
 range                 : < A/I/V >    # A = compute all evals
                                      # I = compute eigenvalues from min index to max index
                                      # V = compute eigenvalues from a min-max range 
@@ -70,7 +71,8 @@ orfac		      :	             # Tolerance for eigenvector orthogonalization
 
 num neighbours        : 	     # Number of neigbouring cells to scan for convergence
 e field z             :              # in meV  
-onsite energy         :              # in meV
+onsite energy         :              # in meV (For each type of atom, the onsite energy
+                                     #         has to be specified, seperated with , )
 
 output file name      : 
 output file location  : 
