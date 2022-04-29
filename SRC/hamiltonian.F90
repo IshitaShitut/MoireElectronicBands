@@ -5,12 +5,13 @@ subroutine create_hamiltonian(k_indx,derivative)
 
     ! ---------------------------------------------------------------------------- 
     ! Subroutine which creates the hamiltonian in a block cyclically distributed 
-    ! manner across the processors. If the optional variable derivative is
-    ! passed, it computes the derivative of the Hamiltonian for 
+    ! manner across the processors. The variable derivative is passed, to
+    ! compute the derivative of the Hamiltonian 
     ! 
-    !       derivative = x ::  dH/dx is computed
-    !       derivative = y ::  dH/dy is computed
-    !       derivative = z ::  dH/dz is computed
+    !       derivative = 0 ::  no derivative is computed
+    !       derivative = 1 ::  dH/dkx is computed
+    !       derivative = 2 ::  dH/dky is computed
+    !       derivative = 3 ::  dH/dkz is computed
     !
     !   Central finite difference is used for computing the derivatives.
     !   The delta is taken as (0.0001 1/Ang) in the reciprocal lattice,
@@ -147,7 +148,7 @@ subroutine compute_hij(i,j,k_pt,hij)
         else
             hij = cmplx(-E_field/2000, 0)
         end if
-        hij = hij - cmplx(moire%onsite_en(moire%at_types_i(i))/1000,0)
+        hij = hij + cmplx(moire%onsite_en(int(moire%at_types_i(i)))/1000,0)
     else
         do l = -no_neigh, no_neigh
            do m = -no_neigh, no_neigh
@@ -164,9 +165,7 @@ subroutine compute_hij(i,j,k_pt,hij)
            end do
         end do
     end if
-
     return
-
 end subroutine
 
 

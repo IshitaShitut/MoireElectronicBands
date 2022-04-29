@@ -145,6 +145,54 @@ module bz_integration
         write(unit=6,fmt="(a1,a40,a,$)") char(13), bar, 'of calculations done.'
         return
     end subroutine progress
+
+
+    subroutine standard_integration(method, weight, freq, width, energy, nenergy, &
+                                    natom, nbands, dos_loc)
+        implicit none
+        integer, intent(in) :: method,natom, nbands, nenergy
+        double precision, intent(in) :: width
+        double precision, intent(in)  :: weight
+        double precision, dimension(nbands), intent(in) :: freq
+        double precision, dimension(nenergy), intent(in) :: energy
+        double precision, dimension(nenergy), intent(out) :: dos_loc
+        integer :: i, j
+        double precision :: d
+
+        dos_loc = 0.0
+        do j=1,nbands
+            do i=1,nenergy
+                if (method==1) then
+                    call gaussian(freq(j),energy(i),width,d)
+                else if (method==2) then
+                    call lorentzian(freq(j), energy(i),width,d)
+                end if
+                dos_loc(i) = dos_loc(i)+d
+            end do
+        end do
+        dos_loc = dos_loc*weight/natom
+        return
+    end subroutine
+
+    subroutine gaussian(e0, e, width, d)
+        implicit none
+        double precision, intent(in) :: e, e0, width
+        double precision, intent(out) :: d
+        double precision, parameter :: PI = 3.141592653589793
+
+        d = exp(-(((e-e0)/width)**2)/2)/(sqrt(2*PI)*width)
+        return
+    end subroutine
+
+    subroutine lorentzian(e0, e, width, d)
+        implicit none
+        double precision, intent(in) :: e, e0, width
+        double precision, intent(out) :: d
+        double precision, parameter :: PI = 3.141592653589793
+
+        d = ((width/2)/((e-e0)**2+(width/2)**2))  * (1/PI)
+        return
+    end subroutine
 end module              
         
 

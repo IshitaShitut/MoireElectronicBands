@@ -4,7 +4,7 @@ SUBROUTINE read_lammps_data()
 
   IMPLICIT NONE
   INTEGER :: i, j, temp, error
-  DOUBLE PRECISION :: x1, x2, y1, y2, z1, z2, xy, xz, yz 
+  DOUBLE PRECISION :: x1, x2, y1, y2, z1, z2, xy, xz, yz, temp_d
   CHARACTER(CHAR_LEN) :: file_name_
 
   ALLOCATE(moire%mass(lammps_file%at_types))
@@ -119,6 +119,24 @@ SUBROUTINE read_lammps_data()
                         moire%sup_cell_info(i,1), moire%sup_cell_info(i,2), &
                         moire%sup_cell_info(i,3)
       END DO 
+#ifdef __DEBUG
+      WRITE(debug_str, '(A)') '\r\nLayer    Atom type         X          Y          Z'
+      CALL debug_output(0)
+      DO i = 1,moire%natom
+        WRITE(debug_str, '(2I8, 3F12.6, 3I6)') moire%lay_types(i), moire%at_types_i(i), &
+                              moire%real_pos(i,1), moire%real_pos(i,2), moire%real_pos(i,3), &
+                        moire%sup_cell_info(i,1), moire%sup_cell_info(i,2), &
+                        moire%sup_cell_info(i,3)
+        CALL debug_output(0)
+      END DO
+#endif
+    CASE ("full", "Full", "FULL")
+      DO i=1,moire%natom
+        READ(1,*) temp, moire%lay_types(i), moire%at_types_i(i), temp_d, &
+                        moire%real_pos(i,1), moire%real_pos(i,2), moire%real_pos(i,3), &
+                        moire%sup_cell_info(i,1), moire%sup_cell_info(i,2), &
+                        moire%sup_cell_info(i,3)
+      END DO
 #ifdef __DEBUG
       WRITE(debug_str, '(A)') '\r\nLayer    Atom type         X          Y          Z'
       CALL debug_output(0)

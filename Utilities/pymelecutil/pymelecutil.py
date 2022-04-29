@@ -8,12 +8,18 @@
 import numpy as np
 import spglib
 import matplotlib.pyplot as plt
-from mpi4py import MPI
 import h5py
 
 class moire_electron_utils():
     """
         Utility routines for Moire Electronic Bands
+
+        Input
+        -----
+
+            file_name == Name of the LAMMPS structure file for the Moire
+            file_location == Location of the LAMMPS structure file
+
     """
     def __init__(self,
                  file_name=None,
@@ -38,13 +44,6 @@ class moire_electron_utils():
     def read_lammps(self):
         """
             Reads the LAMMPS output file 
-            Inputs needed for the lammps_data class:
-                file_name - Name of the LAMMPS file
-                file_location - Location of the LAMMPS file
-                natom - Number of atoms in the system
-                at_types - Number of atom types
-                at_style - Atomic style used in the LAMMPS data file
-
         """
         if self.file_location[len(self.file_location)-1]!='/':
             self.file_location += '/'
@@ -81,6 +80,15 @@ class moire_electron_utils():
                     self.real_pos = np.array([[eval(lines[j].split()[3]),
                                                eval(lines[j].split()[4]),
                                                eval(lines[j].split()[5])]
+                                               for j in range(i+2, i+self.natom+2)])
+                elif (self.at_style == 'full'):
+                    self.at_id =  np.array([eval(lines[j].split()[0]) for j in
+                                                range(i+2, i+self.natom+2)])
+                    self.mol_id = np.array([eval(lines[j].split()[2]) for j in
+                                                range(i+2, i+self.natom+2)])
+                    self.real_pos = np.array([[eval(lines[j].split()[4]),
+                                               eval(lines[j].split()[5]),
+                                               eval(lines[j].split()[6])]
                                                for j in range(i+2, i+self.natom+2)])
             if "Masses" in lines[i]:
                 self.mass = np.array([eval(lines[j].split()[1]) for j in 
@@ -253,7 +261,7 @@ class moire_electron_utils():
                           en_spacing = 1e-3, #eV
                           method='linear triangulation',
                           k_grid_file = None,
-                          width = None,
+                          width = 1e-4 #eV,
                           full_k_grid_file=None,
                           output_file='dos.dat'):
         """
@@ -261,17 +269,18 @@ class moire_electron_utils():
         """
 
         
+        from bz_integration import bz_integration as bzi
+        from mpi4py import MPI
+        from distribute_lists import distribute
+        
+        comm = MPI.COMM_WORLD
+        rank = comm.Get_rank()  
+        size = comm.Get_size()
+        E = np.arange(en_range[0],en_range[1],en_spacing)
 
         if method=='linear triangulation':
             
-            from bz_integration import bz_integration as bzi
-            from distribute_lists import distribute
             from scipy.spatial import Delaunay
-
-            comm = MPI.COMM_WORLD
-            rank = comm.Get_rank()  
-            size = comm.Get_size()
-
 
             moire_area = abs(np.linalg.det(self.lat[0:2,0:2]))*0.01 # in nm^2
             BZ_area = abs(np.linalg.det(self.rec_lat[0:2,0:2]))*100 # in nm^-2
@@ -319,32 +328,65 @@ class moire_electron_utils():
             del up
 
             loc_tri = distribute(triangles_reduced, rank, size)
-            E = np.arange(en_range[0],en_range[1],en_spacing)
             func = np.ones(np.shape(Freq),dtype=np.float64)
             
             dos_loc, nd_loc = bzi.linear_triangulation(nbands, loc_tri, len(E), E,
                                                        Freq, func, rank) 
             
-            Master_list_global_dos = []
-            Master_list_global_dos = comm.gather(dos_loc, root=0)
-            Master_list_global_ndos = []
-            Master_list_global_ndos = comm.gather(nd_loc, root=0)
+            #Master_list_global_dos = []
+            #Master_list_global_dos = comm.gather(dos_loc, root=0)
+            #Master_list_global_ndos = []
+            #Master_list_global_ndos = comm.gather(nd_loc, root=0)
 
+            DOS = np.zeros(len(dos_loc),dtype=dos_loc.dtype)
+            ND = np.zeros(len(nd_loc),dtype=nd_loc.dtype)
+            comm.Allreduce(dos_loc,DOS,op=MPI.SUM)
+            comm.Allreduce(nd_loc,ND,op=MPI.SUM)
+            
+            DOS *= (2/number_of_triangles/3)/moire_area 
+            ND *= (2/number_of_triangles/3)/moire_area *self.natom/nbands
+            
             if rank == 0:
-                DOS = np.zeros(len(dos_loc))
-                ND = np.zeros(len(nd_loc))
-                for i in range(size):
-                    DOS += Master_list_global_dos[i]
-                    ND += Master_list_global_ndos[i]
-                DOS *= (2/number_of_triangles/3)/moire_area 
-                ND *= (2/number_of_triangles/3)/moire_area *self.natom/nbands
+                #DOS = np.zeros(len(dos_loc))
+                #ND = np.zeros(len(nd_loc))
+                #for i in range(size):
+                #    DOS += Master_list_global_dos[i]
+                #    ND += Master_list_global_ndos[i]
 
                 f = open(output_file,'w+')
                 for i in range(len(E)):
                     f.writelines("%f\t\t%f\t%f\n"%(E[i],DOS[i],ND[i]))
                 f.close()
+                print("\nWritten DOS and Number density to %s"%(output_file), flush=True)
+        
+        else: 
+            if method=='gaussian':
+                mm = 1    
+            else if method=='lorentzian':
+                mm = 2
+            weights = np.loadtxt(k_grid_file,usecols=(3,))
+            data = h5py.File(data_file,'r')
+            global_keys = list(data.keys())
+            local_keys = distribute(global_keys,rank,size)
+            weights_local = np.empty(len(local_keys),dtype='f')
+            for i,keys in enumerate(local_keys):
+                weights_local[i] = weights[int(keys)-1]
+            dos_loc = np.zeros(np.shape(E))
+            for group in local_keys:
+                Freq = data[group]['eigenvalues'][:]
+                dos_loc += bzi.standard_integration(method=mm,weight=weights_loc,
+                                                    freq=Freq,width=width,energy=E,
+                                                    nenergy=len(E),natom=self.natom,
+                                                    nbands=nbands)
+            DOS = np.zeros(len(dos_loc),dtype=dos_loc.dtype)
+            comm.Allreduce(dos_loc,DOS,op=MPI.SUM)
+            if rank==0:
+                f = open(output_file,'w+')
+                for i in range(len(E)):
+                    f.writelines("%f\t\t%f\n"%(E[i],DOS[i]))
+                f.close()
                 print("\nWritten DOS to %s"%(output_file), flush=True)
-
+            
         return        
         
 
@@ -353,11 +395,13 @@ class moire_electron_utils():
                               box_dim,
                               image_size=5000,
                               number_of_ticks = 5,
-                              vmin = 3.35,
-                              vmax = 3.65,
+                              vmin = None,
+                              vmax = None,
                               dpi = 300,
                               output_file='interlayer_seperation.pdf',
-                              transparent=True):
+                              transparent=True,
+                              save=True,
+                              colormap='inferno'):
         """
             Computes the interlayer seperation for a given moire structure.
             
@@ -384,6 +428,14 @@ class moire_electron_utils():
                 vmax (float) == Maxiumum value of height to be shown in the cmap
                 
                 dpi (int) == dpi for matplotlib figure
+
+                save (boolean) == If True saves the plot, else displays the plot 
+                    (default = True)
+
+                colormap (string)== Which colormap to use for plotting. Refer to 
+                                https://matplotlib.org/stable/tutorials/colors/colormaps.html
+                                for the list of available colormaps.
+                    (default = 'inferno')
             
             Output:
             -------
@@ -436,13 +488,18 @@ class moire_electron_utils():
 
         ils = L2-L1
 
-        cmap = plt.cm.get_cmap('inferno')
+        cmap = plt.cm.get_cmap(colormap)
             
-        plt.imshow(ils,cmap=cmap, vmin=vmin, vmax=vmax)
+        if vmin!=None and vmax!=None:
+            plt.imshow(ils,cmap=cmap)
+        else:
+            plt.imshow(ils,cmap=cmap, vmin=vmin, vmax=vmax)
 
         cbar = cm.ScalarMappable(cmap=cmap)
         if vmin!=None and vmax!=None:
             cbar.set_clim(vmin=vmin, vmax=vmax)
+        else:
+            cbar.set_clim(vmin=np.min(ils),vmax=np.max(ils))
 
         xticks = np.linspace(box_dim[0,0]+1.5,box_dim[0,1]-1.5,number_of_ticks)
         for i in range(len(xticks)):
@@ -459,9 +516,11 @@ class moire_electron_utils():
         Cbar = plt.colorbar(cbar)
         Cbar.ax.tick_params(labelsize=12)
         Cbar.set_label(r'Interlayer distance ($\AA$)',size=15,rotation=270,labelpad=40)
-        
-        plt.tight_layout()
-        plt.savefig(output_file, format='pdf', dpi=dpi, transparent=transparent)
+        plt.gca().set_aspect('equal') 
+        if save:
+            plt.savefig(output_file, format='pdf', dpi=dpi, transparent=transparent,bbox_inches='tight')
+        else:
+            plt.show()
         plt.clf()
 
         return
@@ -478,9 +537,17 @@ class moire_electron_utils():
                plot_limits=None,
                save_strain_info = False,
                strain_file = "strain.hdf5",
-               output_file_name='Strain.jpg'):
+               output_file_name='Strain.jpg',
+               colormap = 'coolwarm'):
         """
-        
+            Computes the strain in each layer
+
+            Input
+            -----
+
+
+            Output
+            ------
         """
 
 
@@ -606,15 +673,9 @@ class moire_electron_utils():
 
 
 
-
-
-
-
-
-
 class plot_data():
     """
-        Plot the band structures, DOS, velocity and other relevant data extracted
+        Class for plotting the band structure, density of states, velocity
     """
     
 
@@ -622,13 +683,48 @@ class plot_data():
                  fig_size = None,
                  dpi = None,
                  en_range=None):
+        """
+            fig_size = size of the plot
+            dpi = figure dpi
+            en_range = energy window in which you want the plot
+        """
         self.fig_size = fig_size
         self.dpi = dpi
         self.en_range = en_range
         return
 
-    def band_structure(self, data_file, nbands, nkpt, kfile, label, 
-                       save=True,savefile='bandstruct.png', closed_loop=True):
+    def band_structure(self, 
+                       data_file, 
+                       nbands, 
+                       nkpt, 
+                       kfile, 
+                       label, 
+                       save=True,
+                       savefile='bandstruct.png', 
+                       closed_loop=True):
+        """
+            Plot the band structure of the generated file.
+            
+            Input
+            -----
+                
+                data_file == file containing the band data
+                nbands == number of bands
+                nkpt == number of k points
+                kfile == file containing the list of k points
+                label == label for each of the high symmetry points
+                save == True/False (Whether to save the figure or not)
+                        (default = True)
+                savefile == Name of the filein which the plot is to saved
+                        (default = 'bandstruct.jpg')
+                closed_loop == Whether the k point paths follow a closed loop
+                               If the k points follow a closed loop, the first 
+                               k point reappears right at the end, but 
+                               to save computaion time, the spectrum is not calculated
+                               twice. So the script takes the spectrum of the 
+                               first point and plots it again.
+                        (default = True)
+        """
         
         with open(kfile,'r') as f:
             for nodes in f:

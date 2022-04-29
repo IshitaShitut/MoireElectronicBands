@@ -69,6 +69,8 @@ abstol		      :		     # Tolerance for eigenvalue convergence
 orfac		      :	             # Tolerance for eigenvector orthogonalization
 
 
+local normals         : < yes/no >   # Compute local normals. If set to no, local normals
+                                     # are set along the z axis for all atoms.
 num neighbours        : 	     # Number of neigbouring cells to scan for convergence
 e field z             :              # in meV  
 onsite energy         :              # in meV (For each type of atom, the onsite energy

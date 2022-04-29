@@ -161,6 +161,23 @@ subroutine read_input()
                     read(args1_(2), *) pzheevx_vars%abstol
                 case ("ORFAC")
                     read(args1_(2), *) pzheevx_vars%orfac 
+                case ("COMPUTE LOCAL NORMALS", "LOCAL_NORMALS", "LOCAL NORMALS", "COMPUTE_LOCAL_NORMALS")
+                    args1_(2) = trim(adjustl(args1_(2)))
+                    if (args1_(2) == 'yes' .or. args1_(2) == 'true' .or. &
+                        args1_(2) == 'Yes' .or. args1_(2) == 'True' .or. &
+                        args1_(2) == 'YES' .or. args1_(2) == 'TRUE') then
+                        moire%compute_normal = .true.
+                    elseif (args1_(2) == 'no' .or. args1_(2) == 'false' .or. &
+                            args1_(2) == 'No' .or. args1_(2) == 'False' .or. &
+                            args1_(2) == 'NO' .or. args1_(2) == 'FALSE') then
+                        moire%compute_normal = .false.
+                    else
+                        write(err_msg, '(3A)') "Could not interpret command ", &
+                                               args1_(2), &
+                                               "\r\nVelocity will not be computed."
+                        call error_message()
+                        moire%compute_normal = .false.
+                    end if
                 case ("NUM NEIGHBOURS", "NUM_NEIGHBOURS")
                     read(args1_(2), *) no_neigh
                 case ("E FIELD Z", "E_FIELD_Z")
@@ -264,6 +281,8 @@ subroutine read_input()
     call debug_output(0)
     write(debug_str, '(A,E12.4)') "Orfac : ", pzheevx_vars%orfac
     call debug_output(0)
+    write(debug_str,'(A,L)') "Compute Local Normals : ", moire%compute_normal
+    call debug_output(0)
     write(debug_str, '(A,I0)') "Number of neighbour cells in each direction to scan : ", &
                                  no_neigh
     call debug_output(0)
@@ -335,6 +354,7 @@ subroutine default_variables()
     pzheevx_vars%nb = -1
     pzheevx_vars%abstol= 1E-15
     pzheevx_vars%orfac = 1E-15
+    moire%compute_normal = .false.
     no_neigh = 1
     E_field = 0.0
     moire%onsite_en = 0.0

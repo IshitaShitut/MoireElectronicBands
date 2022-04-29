@@ -19,5 +19,11 @@ neighbors = 3
 
 heading = r'Angle $%s^{\circ}$'%angle
 output = lammps_file_location+'/strain_%s_layer2.png'%angle
-moire.strain(equib_latcon, neighbors, heading=heading, plot_limits=plot_limits, save=False, dpi=600, output_file_name=output)
+moire.strain(equib_latcon, 
+             neighbors, 
+             heading=heading, 
+             plot_limits=plot_limits, 
+             save=False, 
+             dpi=600, 
+             output_file_name=output)
 

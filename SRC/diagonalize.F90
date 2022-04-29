@@ -57,17 +57,26 @@ subroutine diagonalize_hamiltonian()
     if (info.gt.0) then
         if (mod(info,2).ne.0) then
             write(debug_str,'(A)') "One or more eigenvalues failed to converge"
-            call debug_output(0)
+            call debug_output(info)
         end if
         if (mod(info/2, 2).ne.0) then
-            write(*,*) "Eigenvectors corresponding to the following indices could not be orthogonalized"
-            write(*,*) iclustr
+            write(debug_str,'(A)') "Eigenvectors corresponding to the following indices could not be orthogonalized"
+            call debug_output(info)
+#ifdef __KPOOL
+            if (mpi_local%rank==0) then
+#else
+            if (mpi_global%rank==0) then
+#endif
+                write(*,*) iclustr
+            end if
         end if
         if (mod(info/4, 2).ne.0) then
-            write(*,*) "All eigenvectors in the specified interval could not be computed due to insufficient memory"
+            write(debug_str,'(A)') "All eigenvectors in the specified interval could not be computed due to insufficient memory"
+            call debug_output(info)
         end if
         if (mod(info/8,2).ne.0) then
-            write(*,*) "One or more eigenvalues were not computed"
+            write(debug_str,'(A)') "One or more eigenvalues were not computed"
+            call debug_output(info)
         end if
     end if
 
