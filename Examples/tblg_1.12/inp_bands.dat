@@ -18,7 +18,8 @@ nkpt                  : 31
 num kpools            : 3
 
 
-compute eigvecs       : yes
+compute eigvecs       : no
+group velocity        : no
 range                 : A         
 min eigval            : -0.400
 max eigval            : 0.400 

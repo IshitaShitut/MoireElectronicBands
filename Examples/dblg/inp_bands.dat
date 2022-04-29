@@ -1,0 +1,40 @@
+# -----------------------------------------------------------------
+# Input file for electronic Band Structure Calculations in Moire
+# -----------------------------------------------------------------
+
+
+lammps file location  : ./ 
+lammps file name      : lammps.dat
+natom                 : 8
+atom types            : 4
+atom style            : atomic
+
+
+k file location       : ./ 
+k file name           : k_points.dat  
+nkpt                  : 300
+
+
+num kpools            : 3
+
+
+compute eigvecs       : no
+group velocity        : no
+range                 : A         
+min eigval            : -0.400
+max eigval            : 0.400 
+min index             : 1
+max index             : 4
+
+abstol                :	1E-15     # Tolerance for eigenvalue convergence
+orfac                 :	1E-15     # Tolerance for eigenvector orthogonalization
+
+num neighbours        : 10
+e_field_z             : 0.0                    # in meV  
+onsite energy         : 0.0, 0.0, 0.0, 0.0     # in meV
+mb                    : 4
+nb                    : 4
+
+
+output file name      : bands.dat
+output_file_location  : ./
