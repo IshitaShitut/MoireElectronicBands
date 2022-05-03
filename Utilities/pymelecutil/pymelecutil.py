@@ -261,7 +261,7 @@ class moire_electron_utils():
                           en_spacing = 1e-3, #eV
                           method='linear triangulation',
                           k_grid_file = None,
-                          width = 1e-4 #eV,
+                          width = 1e-4, #eV
                           full_k_grid_file=None,
                           output_file='dos.dat'):
         """
@@ -362,7 +362,7 @@ class moire_electron_utils():
         else: 
             if method=='gaussian':
                 mm = 1    
-            else if method=='lorentzian':
+            elif method=='lorentzian':
                 mm = 2
             weights = np.loadtxt(k_grid_file,usecols=(3,))
             data = h5py.File(data_file,'r')
