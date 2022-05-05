@@ -1,22 +1,12 @@
-import h5py
-import matplotlib.pyplot as plt
-import numpy as np
+from pymelecutil.pymelecutil import plot_data
 
-fname = 'bands.dat.hdf5'
-nbands = 4
-no_k_pts = 300
-index_ = [i for i in range(no_k_pts)]
-
-data = h5py.File(fname, 'r')
-
-eigvals = np.empty((no_k_pts, nbands))
-
-counter = 0
-for group in data.keys():
-    ds_data = data[group]['eigenvalues']
-    eigvals[counter] = ds_data[:]
-    counter+=1
-x = [i for i in range(no_k_pts)]
-for i in range(nbands):
-    plt.plot(x, eigvals[:,i],c='k')
-plt.show()
+label=(r'$\Gamma $','M', 'K', r'$\Gamma $')
+en_range = [-15,8.5]
+plt = plot_data(dpi=500,en_range=en_range)
+plt.band_structure(data_file='bands.dat.hdf5',
+                   label=label, 
+                   nbands=4, 
+                   nkpt=300, 
+                   kfile='k_points.dat',
+                   closed_loop=True,
+                   save=False)

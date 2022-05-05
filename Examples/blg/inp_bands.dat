@@ -20,6 +20,7 @@ num kpools            : 3
 
 compute eigvecs       : no
 group velocity        : no
+local normals	      : no
 range                 : A         
 min eigval            : -0.400
 max eigval            : 0.400 
@@ -30,7 +31,7 @@ abstol                :	1E-15     # Tolerance for eigenvalue convergence
 orfac                 :	1E-15     # Tolerance for eigenvector orthogonalization
 
 num neighbours        : 10
-e_field_z             : 0.0              # in meV  
+e_field_z             : 0.5          # in V/nm  
 onsite energy         : 0.0, 0.0     # in meV
 mb                    : 4
 nb                    : 4

@@ -42,6 +42,7 @@ module global_variables
         double precision, allocatable, dimension(:,:) :: real_pos, crys, normal
         integer , allocatable, dimension(:) :: at_types_i
         integer , allocatable, dimension(:) :: lay_types
+        integer :: lay_no
         double precision, dimension(3,3) :: lat , rec_lat
         double precision, allocatable, dimension(:) :: onsite_en(:)
     end type
@@ -69,6 +70,11 @@ module global_variables
                           RSRC_ = 7, CSRC_ = 8, LLD_ = 9
     integer  :: no_neigh
     double precision :: E_field
+    double precision :: Zmin, Zmax, Zmid
+    !double precision :: Zavg
+    !double precision, allocatable, dimension(:) :: Zlay
+    double precision :: B_field
+    integer  :: B_gauge
     
 
 

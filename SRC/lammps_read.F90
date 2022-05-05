@@ -6,6 +6,7 @@ SUBROUTINE read_lammps_data()
   INTEGER :: i, j, temp, error
   DOUBLE PRECISION :: x1, x2, y1, y2, z1, z2, xy, xz, yz, temp_d
   CHARACTER(CHAR_LEN) :: file_name_
+  !INTEGER, ALLOCATABLE, DIMENSION(:) :: cnt
 
   ALLOCATE(moire%mass(lammps_file%at_types))
   ALLOCATE(moire%at_types_i(moire%natom))
@@ -112,6 +113,7 @@ SUBROUTINE read_lammps_data()
         CALL debug_output(0)
       END DO
 #endif
+      moire%lay_types(:) = moire%at_types_i(:)  !Ishita : Is this always right?
     CASE ("molecular","Molecular","MOLECULAR")
       DO i=1,moire%natom
         READ(1,*) temp, moire%lay_types(i), moire%at_types_i(i), moire%real_pos(i,1), &
@@ -202,7 +204,29 @@ SUBROUTINE read_lammps_data()
 #endif
 
 
+  ! Will be used later for the system with applied constant electric field along
+  ! z direction
 
+  !moire%lay_no = int(maxval(moire%lay_types(:)))
+  !allocate(Zlay(moire%lay_no))
+  !allocate(cnt(moire%lay_no))
+  !Zlay(:) = 0
+  !cnt(:) = 0
+  !DO i=1,moire%natom
+  !  Zlay(int(moire%lay_types(i))) = Zlay(moire%lay_types(i)) + moire%real_pos(i,3)
+  !  cnt(int(moire%lay_types(i))) = cnt(moire%lay_types(i)) + 1
+  !END DO
+  !Zavg = 0
+  !DO i=1,moire%lay_no
+  !  Zlay(i) = Zlay(i)/cnt(i)
+  !  Zavg = Zavg + Zlay(i)
+  !END DO
+  !Zavg = Zavg/moire%lay_no
+
+  Zmin = minval(moire%real_pos(:,3))
+  Zmax = maxval(moire%real_pos(:,3))
+  Zmid = (Zmin + Zmax)/2.0d0
+ 
   CLOSE(unit=1)
    
   RETURN
