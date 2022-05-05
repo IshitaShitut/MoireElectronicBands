@@ -28,10 +28,13 @@ max index             : 18
 
 local normals         : no
 num neighbours        : 1
-e_field_z             : 0.0              # in meV  
+e_field_z             : 0.5              # in V/nm
 onsite energy         : -785.72523027     # in meV
 mb                    : 4
 nb                    : 4
+
+#b field z             : 1000000
+#b gauge               : 1
 
 output file name      : bands_21.8_E0
 output_file_location  : ./

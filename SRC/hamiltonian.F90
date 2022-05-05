@@ -143,11 +143,13 @@ subroutine compute_hij(i,j,k_pt,hij)
     hij = cmplx(0,0)
 
     if (i==j) then
-        if (i.le.int(moire%natom/2)) then
-            hij = cmplx(E_field/2000, 0)
-        else
-            hij = cmplx(-E_field/2000, 0)
-        end if
+        !if (i.le.int(moire%natom/2)) then
+        !    hij = cmplx(E_field/2000, 0)
+        !else
+        !    hij = cmplx(-E_field/2000, 0)
+        !end if
+        hij = cmplx(E_field*((moire%real_pos(i,3)-Zmid)/10), 0)
+        !hij = cmplx(E_field*((Zlay(int(moire%lay_types(i)))-Zavg)/10), 0)
         hij = hij + cmplx(moire%onsite_en(int(moire%at_types_i(i)))/1000,0)
     else
         do l = -no_neigh, no_neigh
@@ -177,11 +179,14 @@ subroutine T_ij(i,j,rij,t)
     double precision, dimension(3), intent(in) :: rij
     double precision, intent(out) :: t
     double precision :: t_pi, t_sig
+    double precision :: p_phase
 
     call V_pi(i,j,rij,t_pi)
     call V_sig(i,j,rij,t_sig)
 
     t = t_pi + t_sig
+    call  create_peierls_phase(i,j,p_phase)
+    t = t*p_phase
 
     return
 

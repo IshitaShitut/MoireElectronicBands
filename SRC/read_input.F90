@@ -182,6 +182,10 @@ subroutine read_input()
                     read(args1_(2), *) no_neigh
                 case ("E FIELD Z", "E_FIELD_Z")
                     read(args1_(2), *) E_field
+                case ("B FIELD Z", "B_FIELD_Z")
+                    read(args1_(2), *) B_field
+                case ("B GAUGE", "B_GAUGE")
+                    read(args1_(2), *) B_gauge
                 case ("ONSITE_ENERGY", "ONSITE ENERGY")
                     if (lammps_file%at_types == 0) then
                         write(err_msg, '(2A)') "Atom type cannot be 0 ", &
@@ -289,6 +293,17 @@ subroutine read_input()
     write(debug_str, '(A,F0.6,A)') "Electric Field applied in the Z direction : ", &
                                     E_field, " meV"
     call debug_output(0)
+    write(debug_str, '(A,F0.6,A)') "Magnetic Field applied in the Z direction : ", &
+                                    B_field, " Tesla"
+    call debug_output(0)
+    if (B_gauge .eq. 1) then
+        write(debug_str, '(A)') "Magnetic Vector Potential gauge : Landau Gauge"
+    else if (B_gauge .eq. 2) then
+        write(debug_str, '(A)') "Magnetic Vector Potential gauge : Landau Gauge"
+    else if (B_gauge .eq. 3) then
+        write(debug_str, '(A)') "Magnetic Vector Potential gauge : Symmetric Gauge"
+    endif
+    call debug_output(0)
     write(format_,'(A,I0,A)') '(A,',lammps_file%at_types,'(F0.6,2X),A)'
     write(debug_str, trim(adjustl(format_))) "Onsite energy: ", moire%onsite_en, " meV"
     call debug_output(0)
@@ -357,6 +372,8 @@ subroutine default_variables()
     moire%compute_normal = .false.
     no_neigh = 1
     E_field = 0.0
+    B_field = 0.0
+    B_gauge = 3
     moire%onsite_en = 0.0
     output_file_name = 'results'
     output_file_location = './'
